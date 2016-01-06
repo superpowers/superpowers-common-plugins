@@ -142,7 +142,7 @@ function onChatInputKeyDown(event: any) {
   if (!socket.connected) return;
 
   socket.emit("edit:rooms", "home", "appendMessage", this.value, (err: string) => {
-    if (err != null) { alert(err); return; }
+    if (err != null) { new SupClient.dialogs.InfoDialog(err, SupClient.i18n.t("common:actions.close")); return; }
   });
 
   this.value = "";
