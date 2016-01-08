@@ -18,31 +18,27 @@ function loadPlugins() {
   let i18nFiles: SupClient.i18n.File[] = [];
 
   SupClient.fetch(`/systems/${SupCore.system.name}/plugins.json`, "json", (err: Error, pluginsInfo: SupCore.PluginsInfo) => {
-    async.eachSeries(pluginsInfo.list, (pluginName, pluginCallback) => {
-      let pluginPath = `/systems/${SupCore.system.name}/plugins/${pluginName}`;
-      i18nFiles.push({ root: pluginPath, name: "settingsEditors" });
+    for (let pluginName of pluginsInfo.list) {
+      let root = `/systems/${SupCore.system.name}/plugins/${pluginName}`;
+      i18nFiles.push({ root, name: "settingsEditors" });
+    }
 
-      async.series([
-
-        (cb) => {
-          let dataScript = document.createElement("script");
-          dataScript.src = `${pluginPath}/bundles/data.js`;
-          dataScript.addEventListener("load", () => { cb(null, null); } );
-          dataScript.addEventListener("error", () => { cb(null, null); } );
-          document.body.appendChild(dataScript);
-        },
-
-        (cb) => {
-          SupClient.activePluginPath = pluginPath;
-          let settingsEditorScript = document.createElement("script");
-          settingsEditorScript.src = `${pluginPath}/bundles/settingsEditors.js`;
-          settingsEditorScript.addEventListener("load", () => { cb(null, null); } );
-          settingsEditorScript.addEventListener("error", () => { cb(null, null); } );
-          document.body.appendChild(settingsEditorScript);
-        },
-
-      ], pluginCallback);
-    }, (err) => { SupClient.i18n.load(i18nFiles, setupSettings); });
+    async.parallel([
+      (cb) => {
+        SupClient.i18n.load(i18nFiles, cb);
+      }, (cb) => {
+        async.each(pluginsInfo.list, (pluginName, pluginCallback) => {
+          let pluginPath = `/systems/${SupCore.system.name}/plugins/${pluginName}`;
+          async.each(["data", "settingsEditors"], (name, cb) => {
+            let script = document.createElement("script");
+            script.src = `${pluginPath}/bundles/${name}.js`;
+            script.addEventListener("load", () => { cb(null); } );
+            script.addEventListener("error", () => { cb(null); } );
+            document.body.appendChild(script);
+          }, pluginCallback);
+        }, cb);
+      }
+    ], setupSettings);
   });
 }
 
