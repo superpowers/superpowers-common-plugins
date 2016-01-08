@@ -113,7 +113,7 @@ function appendHistoryEntry(entry: Entry) {
 };
 
 onRoomCommands.appendMessage = (entry: Entry) => {
-  if (window.parent != null) window.parent.postMessage({ type: "chat", content: `${entry.author}: ${entry.text}` }, (<any>window.location).origin);
+  if (window.parent != null) window.parent.postMessage({ type: "chat", content: `${entry.author}: ${entry.text}` }, window.location.origin);
   appendHistoryEntry(entry);
   scrollToBottom();
 };
