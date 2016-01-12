@@ -17,9 +17,9 @@ function onWelcome() {
 function loadPlugins() {
   let i18nFiles: SupClient.i18n.File[] = [];
 
-  SupClient.fetch(`/systems/${SupCore.system.name}/plugins.json`, "json", (err: Error, pluginsInfo: SupCore.PluginsInfo) => {
+  SupClient.fetch(`/systems/${SupCore.system.id}/plugins.json`, "json", (err: Error, pluginsInfo: SupCore.PluginsInfo) => {
     for (let pluginName of pluginsInfo.list) {
-      let root = `/systems/${SupCore.system.name}/plugins/${pluginName}`;
+      let root = `/systems/${SupCore.system.id}/plugins/${pluginName}`;
       i18nFiles.push({ root, name: "settingsEditors" });
     }
 
@@ -28,7 +28,7 @@ function loadPlugins() {
         SupClient.i18n.load(i18nFiles, cb);
       }, (cb) => {
         async.each(pluginsInfo.list, (pluginName, pluginCallback) => {
-          let pluginPath = `/systems/${SupCore.system.name}/plugins/${pluginName}`;
+          let pluginPath = `/systems/${SupCore.system.id}/plugins/${pluginName}`;
           async.each(["data", "settingsEditors"], (name, cb) => {
             let script = document.createElement("script");
             script.src = `${pluginPath}/bundles/${name}.js`;
