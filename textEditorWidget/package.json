@@ -1,6 +1,6 @@
 {
-  "name": "superpowers-sparklinlabs-text-editor-widget-plugin",
-  "description": "Collaborative text editor widget for Superpowers, the HTML5 2D+3D game maker",
+  "name": "superpowers-common-text-editor-widget-plugin",
+  "description": "Collaborative text editor widget for Superpowers, the HTML5 app for real-time collaborative projects",
   "version": "1.0.0",
   "license": "ISC",
   "repository": {

@@ -1,6 +1,6 @@
 {
-  "name": "superpowers-sparklinlabs-settings-plugin",
-  "description": "Settings plugin for Superpowers, the HTML5 collaborative creative platform",
+  "name": "superpowers-common-settings-plugin",
+  "description": "Settings plugin for Superpowers, the HTML5 app for real-time collaborative projects",
   "version": "1.0.0",
   "license": "ISC",
   "repository": {

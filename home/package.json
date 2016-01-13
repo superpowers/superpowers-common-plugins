@@ -1,6 +1,6 @@
 {
-  "name": "superpowers-sparklinlabs-home-plugin",
-  "description": "Home plugin for Superpowers, the HTML5 collaborative creative platform",
+  "name": "superpowers-common-home-plugin",
+  "description": "Home plugin for Superpowers, the HTML5 app for real-time collaborative projects",
   "version": "1.0.0",
   "license": "ISC",
   "repository": {
