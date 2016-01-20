@@ -1,3 +1,8 @@
+/// <reference path="../../settings/settingsEditors/SettingsEditorPlugin.d.ts" />
+
 import TextEditorSettingsEditor from "./TextEditorSettingsEditor";
 
-SupClient.registerPlugin("settingsEditors", "TextEditor", { namespace: "editors", editor: TextEditorSettingsEditor });
+SupClient.registerPlugin<SupClient.SettingsEditorPlugin>("settingsEditors", "TextEditor", {
+  namespace: "editors",
+  editor: TextEditorSettingsEditor
+});
