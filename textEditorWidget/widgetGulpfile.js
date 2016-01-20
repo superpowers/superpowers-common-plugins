@@ -3,9 +3,10 @@ var tasks = [ "stylus", "copy-cm-modes" ];
 
 // Stylus
 var stylus = require("gulp-stylus");
-var cssimport = require("gulp-cssimport");
+var concatCss = require("gulp-concat-css");
+
 gulp.task("stylus", function() {
-  return gulp.src("./widget/widget.styl").pipe(stylus({ errors: true, compress: true })).pipe(cssimport()).pipe(gulp.dest("./public/"));
+  return gulp.src("./widget/widget.styl").pipe(stylus({ errors: true, compress: true })).pipe(concatCss("widget.css")).pipe(gulp.dest("./public/"));
 });
 
 // Browserify
