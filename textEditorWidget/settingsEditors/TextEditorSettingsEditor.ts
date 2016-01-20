@@ -1,7 +1,6 @@
 import TextEditorSettingsResource from "../data/TextEditorSettingsResource";
 
-export default class SpriteSettingsEditor {
-
+export default class TextEditorSettingsEditor {
   resource: TextEditorSettingsResource;
 
   tabSizeField: HTMLInputElement;
@@ -13,13 +12,17 @@ export default class SpriteSettingsEditor {
     let tabSizeRow = SupClient.table.appendRow(tbody, SupClient.i18n.t("settingsEditors:TextEditor.tabSize"));
     this.tabSizeField = SupClient.table.appendNumberField(tabSizeRow.valueCell, "", { min: 1 });
     this.tabSizeField.addEventListener("change", (event: any) => {
-      projectClient.socket.emit("edit:resources", "textEditorSettings", "setProperty", "tabSize", parseInt(event.target.value, 10), (err: string) => { if (err != null) new SupClient.dialogs.InfoDialog(err, SupClient.i18n.t("common:actions.close")); });
+      projectClient.socket.emit("edit:resources", "textEditorSettings", "setProperty", "tabSize", parseInt(event.target.value, 10), (err: string) => {
+        if (err != null) new SupClient.dialogs.InfoDialog(err, SupClient.i18n.t("common:actions.close"));
+      });
     });
 
     let softTabRow = SupClient.table.appendRow(tbody, SupClient.i18n.t("settingsEditors:TextEditor.useSoftTab"));
     this.softTabField = SupClient.table.appendBooleanField(softTabRow.valueCell, true);
     this.softTabField.addEventListener("change", (event: any) => {
-      projectClient.socket.emit("edit:resources", "textEditorSettings", "setProperty", "softTab", event.target.checked, (err: string) => { if (err != null) new SupClient.dialogs.InfoDialog(err, SupClient.i18n.t("common:actions.close")); });
+      projectClient.socket.emit("edit:resources", "textEditorSettings", "setProperty", "softTab", event.target.checked, (err: string) => {
+        if (err != null) new SupClient.dialogs.InfoDialog(err, SupClient.i18n.t("common:actions.close"));
+      });
     });
 
     projectClient.subResource("textEditorSettings", this);
