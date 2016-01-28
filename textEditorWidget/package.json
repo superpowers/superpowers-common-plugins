@@ -8,7 +8,7 @@
     "url": "https://github.com/superpowers/superpowers-game.git"
   },
   "scripts": {
-    "build": "gulp --gulpfile=../../../../../scripts/pluginGulpfile.js --cwd=. && gulp --gulpfile=widgetGulpfile.js"
+    "build": "gulp --gulpfile=../../../../../scripts/pluginGulpfile.js --cwd=. --silent && gulp --gulpfile=widgetGulpfile.js"
   },
   "dependencies": {
     "operational-transform": "^0.2.3"
