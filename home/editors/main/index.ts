@@ -144,7 +144,7 @@ function onChatInputKeyDown(event: any) {
   socket.emit("edit:rooms", "home", "appendMessage", this.value, (err: string) => {
     if (err != null) {
       /* tslint:disable:no-unused-expression */
-      new SupClient.dialogs.InfoDialog(err);
+      new SupClient.Dialogs.InfoDialog(err);
       /* tslint:enable:no-unused-expression */
       return;
     }
