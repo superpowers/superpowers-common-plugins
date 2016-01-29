@@ -7,7 +7,7 @@ export default class TextEditorSettingsEditor {
   softTabField: HTMLInputElement;
   themeField: HTMLSelectElement;
 
-  themeDictionary: {[ley: string]: string} = {
+  themeDictionary: {[key: string]: string} = {
     "default": "Default",
     "3024-day": "3024 Day",
     "3024-night": "3024 Night",
