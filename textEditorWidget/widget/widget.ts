@@ -356,9 +356,6 @@ class TextEditorWidget {
   onResourceReceived = (resourceId: string, resource: TextEditorSettingsResource) => {
     this.textEditorResource = resource;
 
-    console.log("Hey");
-    console.log(resource);
-
     this.codeMirrorInstance.setOption("theme", resource.pub.theme);
     this.codeMirrorInstance.setOption("tabSize", resource.pub.tabSize);
     this.codeMirrorInstance.setOption("indentUnit", resource.pub.tabSize);
