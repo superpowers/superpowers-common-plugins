@@ -18,6 +18,7 @@ function start() {
 
   // Chat
   document.querySelector(".chat-input textarea").addEventListener("keydown", onChatInputKeyDown);
+  document.querySelector(".chat").addEventListener("click", onLinkClicked);
 };
 
 function onConnected() {
@@ -175,5 +176,20 @@ function onChatInputKeyDown(event: any) {
 
   this.value = "";
 };
+
+function onLinkClicked(event: MouseEvent) {
+  let anchorElt = event.target as HTMLAnchorElement;
+  if (anchorElt.tagName === "A") {
+    event.preventDefault();
+    console.log("clicked");
+
+    if (SupClient.isApp) {
+      const electron: GitHubElectron.Electron = (top as any).global.require("electron");
+      electron.shell.openExternal(anchorElt.href);
+    } else {
+      window.open(anchorElt.href, "_blank");
+    }
+  }
+}
 
 SupClient.i18n.load([{ root: path.join(window.location.pathname, "../.."), name: "home" }], start);
