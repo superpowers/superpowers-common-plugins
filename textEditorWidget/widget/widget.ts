@@ -66,7 +66,7 @@ class TextEditorWidget {
     this.sendOperationCallback = options.sendOperationCallback;
 
     this.codeMirrorInstance = CodeMirror.fromTextArea(textArea, {
-      // theme: "monokai",
+      theme: "monokai",
       lineNumbers: true,
       gutters: ["line-error-gutter", "CodeMirror-linenumbers", "CodeMirror-foldgutter"],
       indentWithTabs: false, indentUnit: 2, tabSize: 2,
@@ -356,6 +356,7 @@ class TextEditorWidget {
   onResourceReceived = (resourceId: string, resource: TextEditorSettingsResource) => {
     this.textEditorResource = resource;
 
+    this.codeMirrorInstance.setOption("theme", resource.pub.theme);
     this.codeMirrorInstance.setOption("tabSize", resource.pub.tabSize);
     this.codeMirrorInstance.setOption("indentUnit", resource.pub.tabSize);
     this.codeMirrorInstance.setOption("indentWithTabs", !resource.pub.softTab);
@@ -371,6 +372,9 @@ class TextEditorWidget {
       case "softTab":
         this.useSoftTab = this.textEditorResource.pub.softTab;
         this.codeMirrorInstance.setOption("indentWithTabs", !this.textEditorResource.pub.softTab);
+        break;
+      case "theme":
+        this.codeMirrorInstance.setOption("theme", this.textEditorResource.pub.theme);
         break;
     }
   }
