@@ -83,6 +83,7 @@ interface Entry {
   timestamp: number;
 }
 
+const addressRegex = new RegExp("^(http[s]?:\\/\\/(www\\.)?|ftp:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_\+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?");
 function appendHistoryEntry(entry: Entry) {
   let date = new Date(entry.timestamp);
   let day = date.toDateString();
@@ -104,10 +105,32 @@ function appendHistoryEntry(entry: Entry) {
   authorSpan.textContent = entry.author;
   entryElt.appendChild(authorSpan);
 
-  let textSpan = document.createElement("span");
-  textSpan.className = "text";
-  textSpan.textContent = `: ${entry.text}`;
-  entryElt.appendChild(textSpan);
+  const addressTest = addressRegex.exec(entry.text);
+  if (addressTest != null) {
+    const beforeAddress = entry.text.slice(0, addressTest.index);
+    let beforeTextSpan = document.createElement("span");
+    beforeTextSpan.className = "text";
+    beforeTextSpan.textContent = `: ${beforeAddress}`;
+    entryElt.appendChild(beforeTextSpan);
+
+    let addressTextLink = document.createElement("a");
+    addressTextLink.className = "text";
+    addressTextLink.textContent = addressTest[0];
+    addressTextLink.href = addressTest[0];
+    entryElt.appendChild(addressTextLink);
+
+    const afterAddress = entry.text.slice(addressTest.index + addressTest[0].length);
+    let afterTextSpan = document.createElement("span");
+    afterTextSpan.className = "text";
+    afterTextSpan.textContent = afterAddress;
+    entryElt.appendChild(afterTextSpan);
+
+  } else {
+    let textSpan = document.createElement("span");
+    textSpan.className = "text";
+    textSpan.textContent = `: ${entry.text}`;
+    entryElt.appendChild(textSpan);
+  }
 
   ui.chatHistory.appendChild(entryElt);
 };
