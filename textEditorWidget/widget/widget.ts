@@ -2,6 +2,7 @@ import TextEditorSettingsResource from "../data/TextEditorSettingsResource";
 
 import * as OT from "operational-transform";
 
+/* tslint:disable */
 (<any>window).CodeMirror = require("codemirror");
 require("codemirror/addon/search/search");
 require("codemirror/addon/search/searchcursor");
@@ -15,9 +16,10 @@ require("codemirror/addon/fold/foldgutter");
 require("codemirror/addon/fold/brace-fold");
 require("codemirror/addon/fold/comment-fold");
 require("codemirror/addon/fold/indent-fold");
+/* tslint:enable */
 
 class TextEditorWidget {
-  textEditorResource: TextEditorSettingsResource
+  textEditorResource: TextEditorSettingsResource;
   codeMirrorInstance: CodeMirror.EditorFromTextArea;
 
   editCallback: EditCallback;
@@ -43,7 +45,7 @@ class TextEditorWidget {
       "F9": () => { /* Disable line re-ordering */ },
       "Ctrl-T": false,
       "Tab": (cm: any) => {
-        if (cm.getSelection() !== "") cm.execCommand("indentMore")
+        if (cm.getSelection() !== "") cm.execCommand("indentMore");
         else {
           if (this.useSoftTab) cm.execCommand("insertSoftTab");
           else cm.execCommand("insertTab");
@@ -55,7 +57,7 @@ class TextEditorWidget {
       "Shift-Cmd-Z": () => { this.redo(); },
       "Ctrl-Y": () => { this.redo(); },
       "Cmd-Y": () => { this.redo(); }
-    }
+    };
     if (options.extraKeys != null) {
       for (let keyName in options.extraKeys) {
         extraKeys[keyName] = options.extraKeys[keyName];
@@ -133,7 +135,7 @@ class TextEditorWidget {
     if (change.origin === "setValue" || change.origin === "network") return;
     let lastText = instance.getDoc().getValue();
     if (lastText !== this.texts[this.texts.length - 1]) this.texts.push(lastText);
-  }
+  };
 
   edit = (instance: CodeMirror.Editor, changes: CodeMirror.EditorChange[]) => {
     if (this.editCallback != null)
@@ -146,7 +148,7 @@ class TextEditorWidget {
       let origin: string = (<any>change).origin;
 
       // Modification from an other person
-      if (origin === "setValue" || origin ==="network") continue;
+      if (origin === "setValue" || origin === "network") continue;
 
       this.tmpCodeMirrorDoc.setValue(this.texts[changeIndex]);
 
@@ -215,7 +217,7 @@ class TextEditorWidget {
       if (this.pendingOperation != null) this.pendingOperation = this.pendingOperation.compose(operationToSend);
       else this.pendingOperation = operationToSend;
     }
-  }
+  };
 
   receiveEditText(operationData: OperationData) {
     if (this.clientId === operationData.userId) {
@@ -258,8 +260,9 @@ class TextEditorWidget {
           }
 
           cursorPosition += op.attributes.amount;
-          break;
         }
+        break;
+
         case "insert": {
           let cursor = this.codeMirrorInstance.getDoc().getCursor();
 
@@ -283,9 +286,10 @@ class TextEditorWidget {
           }
 
           if (moveCursor) (<any>this.codeMirrorInstance).setCursor(line, cursorPosition);
-          //use this way insted ? this.codeMirrorInstance.getDoc().setCursor({ line, ch: cursorPosition });
-          break;
+          // use this way insted ? this.codeMirrorInstance.getDoc().setCursor({ line, ch: cursorPosition });
         }
+        break;
+
         case "delete": {
           let texts = op.attributes.text.split("\n");
 
@@ -312,7 +316,7 @@ class TextEditorWidget {
       let operationToUndo = this.undoStack[this.undoStack.length - 1];
       this.applyOperation(operationToUndo.clone(), "undo", true);
 
-      this.undoStack.pop()
+      this.undoStack.pop();
       this.redoStack.push(operationToUndo.invert());
     }
 
@@ -328,12 +332,12 @@ class TextEditorWidget {
   redo() {
     if (this.redoStack.length === 0) return;
 
-    let redoQuantityByAction = this.redoQuantityByAction[this.redoQuantityByAction.length - 1]
+    let redoQuantityByAction = this.redoQuantityByAction[this.redoQuantityByAction.length - 1];
     for (let i = 0; i < redoQuantityByAction; i++) {
       let operationToRedo = this.redoStack[this.redoStack.length - 1];
       this.applyOperation(operationToRedo.clone(), "undo", true);
 
-      this.redoStack.pop()
+      this.redoStack.pop();
       this.undoStack.push(operationToRedo.invert());
     }
 
@@ -360,7 +364,7 @@ class TextEditorWidget {
     this.codeMirrorInstance.setOption("indentUnit", resource.pub.tabSize);
     this.codeMirrorInstance.setOption("indentWithTabs", !resource.pub.softTab);
     this.useSoftTab = resource.pub.softTab;
-  }
+  };
 
   onResourceEdited = (resourceId: string, command: string, propertyName: string) => {
     switch(propertyName) {
@@ -373,7 +377,7 @@ class TextEditorWidget {
         this.codeMirrorInstance.setOption("indentWithTabs", !this.textEditorResource.pub.softTab);
         break;
     }
-  }
+  };
 }
 export = TextEditorWidget;
 

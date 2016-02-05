@@ -8,7 +8,7 @@ export default class TextEditorSettingsResource extends SupCore.Data.Base.Resour
   static schema: SupCore.Data.Schema = {
     tabSize: { type: "number", min: 1, mutable: true },
     softTab: { type: "boolean", mutable: true },
-  }
+  };
 
   pub: TextEditorSettingsResourcePub;
 
