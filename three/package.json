@@ -8,7 +8,7 @@
     "url": "https://github.com/superpowers/superpowers-common-plugins.git"
   },
   "scripts": {
-    "build": "gulp --gulpfile=../../../../../scripts/pluginGulpfile.js --cwd=."
+    "build": "gulp --gulpfile=../../../../../scripts/pluginGulpfile.js --cwd=. --silent && gulp --gulpfile=mainGulpfile.js"
   },
   "dependencies": {
     "three": "^0.73.2"
