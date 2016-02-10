@@ -5,7 +5,7 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://github.com/superpowers/superpowers-game.git"
+    "url": "https://github.com/superpowers/superpowers-common-plugins.git"
   },
   "scripts": {
     "build": "gulp --gulpfile=../../../../../scripts/pluginGulpfile.js --cwd=."
