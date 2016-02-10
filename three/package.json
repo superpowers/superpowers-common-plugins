@@ -10,7 +10,7 @@
   "scripts": {
     "build": "gulp --gulpfile=../../../../../scripts/pluginGulpfile.js --cwd=."
   },
-  "devDependencies": {
+  "dependencies": {
     "three": "^0.73.2"
   }
 }
