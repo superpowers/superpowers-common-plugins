@@ -1,6 +1,12 @@
 import * as THREE from "three";
 (window as any).THREE = THREE;
 
+/* tslint:disable:no-unused-variable */
+import Camera3DControls from "./Camera3DControls";
+/* tslint:enable:no-unused-variable */
+
+export { Camera3DControls };
+
 export function createWebGLRenderer(params?: THREE.WebGLRendererParameters) {
   if (params == null) params = {};
   if (params.precision == null) params.precision = "mediump";

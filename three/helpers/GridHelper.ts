@@ -27,7 +27,7 @@ export default class GridHelper {
   }
 
   setVisible(visible: boolean) {
-    this.root.visible = visible;
+    this.gridHelper.visible = visible;
     return this;
   }
 }

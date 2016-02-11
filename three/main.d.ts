@@ -19,4 +19,9 @@ declare namespace SupTHREE {
 
     reset(): void;
   }
+
+  export class Camera3DControls {
+    constructor(camera: THREE.Camera, canvas: HTMLCanvasElement);
+    update(): void;
+  }
 }
