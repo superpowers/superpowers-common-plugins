@@ -48,7 +48,14 @@ export default class Camera{
 
   setOrthographicScale(orthographicScale: number) {
     this.orthographicScale = orthographicScale;
-    if (this.isOrthographic) this.projectionNeedsUpdate = true;
+    if (this.isOrthographic) {
+      let orthographicCamera = this.threeCamera as THREE.OrthographicCamera;
+      orthographicCamera.left = -this.orthographicScale * this.cachedRatio / 2;
+      orthographicCamera.right = this.orthographicScale * this.cachedRatio / 2;
+      orthographicCamera.top = this.orthographicScale / 2;
+      orthographicCamera.bottom = -this.orthographicScale / 2;
+      orthographicCamera.updateProjectionMatrix();
+    }
     return this;
   }
 
@@ -85,20 +92,12 @@ export default class Camera{
     if (this.projectionNeedsUpdate) {
       this.projectionNeedsUpdate = false;
 
-      if (this.isOrthographic) {
-        let orthographicCamera = this.threeCamera as THREE.OrthographicCamera;
-        orthographicCamera.left = -this.orthographicScale * this.cachedRatio / 2;
-        orthographicCamera.right = this.orthographicScale * this.cachedRatio / 2;
-        orthographicCamera.top = this.orthographicScale / 2;
-        orthographicCamera.bottom = -this.orthographicScale / 2;
-        orthographicCamera.updateProjectionMatrix();
-      }
-      else {
-        let perspectiveCamera = this.threeCamera as THREE.PerspectiveCamera;
+      if (!this.isOrthographic) {
+        const perspectiveCamera = this.threeCamera as THREE.PerspectiveCamera;
         perspectiveCamera.fov = this.fov;
         perspectiveCamera.aspect = this.cachedRatio;
-        perspectiveCamera.updateProjectionMatrix();
       }
+      this.threeCamera.updateProjectionMatrix();
     }
 
     renderer.setViewport(

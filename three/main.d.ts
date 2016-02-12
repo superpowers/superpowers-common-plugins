@@ -35,9 +35,19 @@ declare namespace SupTHREE {
     render(renderer: THREE.WebGLRenderer, scene: THREE.Scene, channels: number[]): void;
   }
 
+  interface Camera2DControlsOptions {
+    zoomMin: number;
+    zoomMax: number;
+    zoomSpeed: number;
+  }
+
+  export class Camera2DControls {
+    constructor(camera: Camera, canvas: HTMLCanvasElement, options?: Camera2DControlsOptions, zoomCallback?: Function);
+    setMultiplier(newMultiplier: number): Camera2DControls;
+  }
 
   export class Camera3DControls {
-    constructor(camera: THREE.Camera, canvas: HTMLCanvasElement);
+    constructor(camera: Camera, canvas: HTMLCanvasElement);
     update(): void;
   }
 }

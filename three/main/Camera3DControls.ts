@@ -1,3 +1,5 @@
+import Camera from "./Camera";
+
 const tmpVector3 = new THREE.Vector3();
 const tmpQuaternion = new THREE.Quaternion();
 const upVector = new THREE.Vector3(0, 1, 0);
@@ -20,11 +22,11 @@ export default class Camera3DControls {
   private phi: number;
   private targetPhi: number;
 
-  constructor(private camera: THREE.Camera, private canvas: HTMLCanvasElement) {
-    this.orbitingPivot = new THREE.Vector3(0, 0, -this.radius).applyQuaternion(this.camera.quaternion).add(this.camera.position);
+  constructor(private camera: Camera, private canvas: HTMLCanvasElement) {
+    this.orbitingPivot = new THREE.Vector3(0, 0, -this.radius).applyQuaternion(this.camera.threeCamera.quaternion).add(this.camera.threeCamera.position);
 
-    tmpQuaternion.setFromUnitVectors(this.camera.up, upVector);
-    tmpVector3.copy(this.camera.position).sub(this.orbitingPivot).applyQuaternion(tmpQuaternion);
+    tmpQuaternion.setFromUnitVectors(this.camera.threeCamera.up, upVector);
+    tmpVector3.copy(this.camera.threeCamera.position).sub(this.orbitingPivot).applyQuaternion(tmpQuaternion);
 
     this.theta = Math.atan2(tmpVector3.x, tmpVector3.z);
     this.targetTheta = this.theta;
@@ -47,10 +49,10 @@ export default class Camera3DControls {
 
     } else if (event.button === 1) {
       this.isOrbiting = true;
-      this.orbitingPivot = new THREE.Vector3(0, 0, -this.radius).applyQuaternion(this.camera.quaternion).add(this.camera.position);
+      this.orbitingPivot = new THREE.Vector3(0, 0, -this.radius).applyQuaternion(this.camera.threeCamera.quaternion).add(this.camera.threeCamera.position);
 
-      tmpQuaternion.setFromUnitVectors(this.camera.up, upVector);
-      tmpVector3.copy(this.camera.position).sub(this.orbitingPivot).applyQuaternion(tmpQuaternion);
+      tmpQuaternion.setFromUnitVectors(this.camera.threeCamera.up, upVector);
+      tmpVector3.copy(this.camera.threeCamera.position).sub(this.orbitingPivot).applyQuaternion(tmpQuaternion);
 
       this.theta = Math.atan2(tmpVector3.x, tmpVector3.z);
       this.targetTheta = this.theta;
@@ -61,10 +63,10 @@ export default class Camera3DControls {
 
   private onMouseMove = (event: MouseEvent) => {
     if (this.isPanning) {
-      tmpVector3.set(-event.movementX / 10, event.movementY / 10, 0).applyQuaternion(this.camera.quaternion);
+      tmpVector3.set(-event.movementX / 10, event.movementY / 10, 0).applyQuaternion(this.camera.threeCamera.quaternion);
       this.orbitingPivot.add(tmpVector3);
-      this.camera.position.add(tmpVector3);
-      this.camera.updateMatrixWorld(false);
+      this.camera.threeCamera.position.add(tmpVector3);
+      this.camera.threeCamera.updateMatrixWorld(false);
 
     } else if (this.isOrbiting) {
       this.targetTheta -= event.movementX / 50;
@@ -95,8 +97,8 @@ export default class Camera3DControls {
     tmpVector3.z = this.radius * Math.sin(this.phi) * Math.cos(this.theta);
     tmpVector3.applyQuaternion(tmpQuaternion.clone().inverse());
 
-    this.camera.position.copy(this.orbitingPivot).add(tmpVector3);
-    this.camera.lookAt(this.orbitingPivot);
-    this.camera.updateMatrixWorld(false);
+    this.camera.threeCamera.position.copy(this.orbitingPivot).add(tmpVector3);
+    this.camera.threeCamera.lookAt(this.orbitingPivot);
+    this.camera.threeCamera.updateMatrixWorld(false);
   }
 }
