@@ -1,11 +1,13 @@
 import * as THREE from "three";
 (window as any).THREE = THREE;
+THREE.Euler.DefaultOrder = "YXZ";
 
 /* tslint:disable:no-unused-variable */
+import Camera from "./Camera";
 import Camera3DControls from "./Camera3DControls";
 /* tslint:enable:no-unused-variable */
 
-export { Camera3DControls };
+export { Camera, Camera3DControls };
 
 export function createWebGLRenderer(params?: THREE.WebGLRendererParameters) {
   if (params == null) params = {};

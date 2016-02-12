@@ -97,5 +97,6 @@ export default class Camera3DControls {
 
     this.camera.position.copy(this.orbitingPivot).add(tmpVector3);
     this.camera.lookAt(this.orbitingPivot);
+    this.camera.updateMatrixWorld(false);
   }
 }

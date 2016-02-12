@@ -20,6 +20,22 @@ declare namespace SupTHREE {
     reset(): void;
   }
 
+  export class Camera {
+    threeCamera: THREE.OrthographicCamera|THREE.PerspectiveCamera;
+
+    constructor(root: THREE.Object3D, canvas: HTMLCanvasElement)
+    computeAspectRatio(): Camera;
+    setOrthographicMode(isOrthographic: boolean): Camera;
+    setFOV(fov: number): Camera;
+    setOrthographicScale(orthographicScale: number): Camera;
+    setViewport(x: number, y: number, width: number, height: number): Camera;
+    setDepth(depth: number): Camera;
+    setNearClippingPlane(nearClippingPlane: number): Camera;
+    setFarClippingPlane(farClippingPlane: number): Camera;
+    render(renderer: THREE.WebGLRenderer, scene: THREE.Scene, channels: number[]): void;
+  }
+
+
   export class Camera3DControls {
     constructor(camera: THREE.Camera, canvas: HTMLCanvasElement);
     update(): void;
