@@ -3,7 +3,6 @@
 // Definitions by: mihailik <https://github.com/mihailik>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
 
-/* tslint:disable */
 declare function CodeMirror(host: HTMLElement, options?: CodeMirror.EditorConfiguration): CodeMirror.Editor;
 declare function CodeMirror(callback: (host: HTMLElement) => void , options?: CodeMirror.EditorConfiguration): CodeMirror.Editor;
 
