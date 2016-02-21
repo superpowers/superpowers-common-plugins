@@ -3,8 +3,6 @@
 // Definitions by: Kon <http://phyzkit.net/>, Satoru Kimura <https://github.com/gyohk>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
 
-/* tslint:disable */
-
 declare module THREE {
     export var REVISION: string;
 
