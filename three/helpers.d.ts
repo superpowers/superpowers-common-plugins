@@ -7,18 +7,19 @@ declare namespace SupTHREE {
     setVisible(visible: boolean): GridHelper;
   }
 
-  export class TransformMarker {
+  export class SelectionBoxRenderer {
     constructor(root: THREE.Object3D);
-    move(target: THREE.Object3D): TransformMarker;
-    hide(): TransformMarker;
+    setTarget(target: THREE.Object3D): SelectionBoxRenderer;
+    move(): SelectionBoxRenderer;
+    resize(): SelectionBoxRenderer;
+    hide(): SelectionBoxRenderer;
   }
 
-  export class SelectionBox {
+  export class SelectionRectangleRenderer {
     constructor(root: THREE.Object3D);
-    setTarget(target: THREE.Object3D): SelectionBox;
-    move(): SelectionBox;
-    resize(): SelectionBox;
-    hide(): SelectionBox;
+    setSize(width: number, height: number): SelectionRectangleRenderer;
+    setPosition(x: number, y: number): SelectionRectangleRenderer;
+    hide(): SelectionRectangleRenderer;
   }
 
   export class TransformHandle {
@@ -32,5 +33,11 @@ declare namespace SupTHREE {
     setTarget(target: THREE.Object3D): TransformHandle;
     move(): TransformHandle;
     hide(): TransformHandle;
+  }
+
+  export class TransformMarker {
+    constructor(root: THREE.Object3D);
+    move(target: THREE.Object3D): TransformMarker;
+    hide(): TransformMarker;
   }
 }

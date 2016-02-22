@@ -16,6 +16,7 @@ export default class Camera2DControls {
     canvas.addEventListener("mousemove", this.onMouseMove);
     canvas.addEventListener("wheel", this.onWheel);
     canvas.addEventListener("keypress", this.onKeyPress);
+    canvas.addEventListener("contextmenu", (event) => { event.preventDefault(); });
   }
 
   setMultiplier(newMultiplier: number) {
@@ -25,7 +26,6 @@ export default class Camera2DControls {
   }
 
   private onMouseDown = (event: MouseEvent) => {
-    event.preventDefault();
     if (event.button === 1 || (event.button === 0 && event.altKey)) this.isMoving = true;
   };
 
