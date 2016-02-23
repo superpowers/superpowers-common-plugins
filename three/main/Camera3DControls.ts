@@ -37,7 +37,7 @@ export default class Camera3DControls {
     canvas.addEventListener("mousemove", this.onMouseMove);
     canvas.addEventListener("wheel", this.onWheel);
     document.addEventListener("mouseup", this.onMouseUp);
-    document.addEventListener("mouseout", this.onMouseUp);
+    canvas.addEventListener("mouseout", this.onMouseUp);
     canvas.addEventListener("contextmenu", (event) => { event.preventDefault(); });
   }
 

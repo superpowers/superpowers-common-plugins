@@ -1,7 +1,5 @@
 import Camera from "./Camera";
 
-// let tmpVector3 = new THREE.Vector3();
-
 export default class Camera2DControls {
   private mousePosition = new THREE.Vector3(0, 0, 0);
   private options: SupTHREE.Camera2DControlsOptions;
@@ -12,10 +10,11 @@ export default class Camera2DControls {
     this.options = options != null ? options : { zoomSpeed: 1.5, zoomMin: 0.1, zoomMax: 10000 };
 
     canvas.addEventListener("mousedown", this.onMouseDown);
-    document.addEventListener("mouseup", this.onMouseUp);
     canvas.addEventListener("mousemove", this.onMouseMove);
     canvas.addEventListener("wheel", this.onWheel);
     canvas.addEventListener("keypress", this.onKeyPress);
+    document.addEventListener("mouseup", this.onMouseUp);
+    canvas.addEventListener("mouseout", this.onMouseUp);
     canvas.addEventListener("contextmenu", (event) => { event.preventDefault(); });
   }
 
