@@ -4,6 +4,7 @@ const tmpVector3 = new THREE.Vector3();
 const tmpQuaternion = new THREE.Quaternion();
 const upVector = new THREE.Vector3(0, 1, 0);
 
+const moveSpeed = 0.3;
 const lerpFactor = 0.25;
 const minOrbitingRadius = 0.5;
 
@@ -22,6 +23,8 @@ export default class Camera3DControls {
   private phi: number;
   private targetPhi: number;
 
+  private moveVector = new THREE.Vector3();
+
   constructor(private camera: Camera, private canvas: HTMLCanvasElement) {
     this.orbitingPivot = new THREE.Vector3(0, 0, -this.radius).applyQuaternion(this.camera.threeCamera.quaternion).add(this.camera.threeCamera.position);
 
@@ -36,6 +39,8 @@ export default class Camera3DControls {
     canvas.addEventListener("mousedown", this.onMouseDown);
     canvas.addEventListener("mousemove", this.onMouseMove);
     canvas.addEventListener("wheel", this.onWheel);
+    canvas.addEventListener("keydown", this.onKeyDown);
+    canvas.addEventListener("keyup", this.onKeyUp);
     document.addEventListener("mouseup", this.onMouseUp);
     canvas.addEventListener("mouseout", this.onMouseUp);
     canvas.addEventListener("contextmenu", (event) => { event.preventDefault(); });
@@ -47,7 +52,7 @@ export default class Camera3DControls {
     if (event.button === 2) {
       this.isPanning = true;
 
-    } else if (event.button === 1) {
+    } else if (event.button === 1 || (event.button === 0 && event.altKey)) {
       this.isOrbiting = true;
       this.orbitingPivot = new THREE.Vector3(0, 0, -this.radius).applyQuaternion(this.camera.threeCamera.quaternion).add(this.camera.threeCamera.position);
 
@@ -83,12 +88,51 @@ export default class Camera3DControls {
     this.radius = Math.max(this.radius, minOrbitingRadius);
   };
 
+  private onKeyDown = (event: KeyboardEvent) => {
+    if (event.keyCode === 87 /* W */ || event.keyCode === 90 /* Z */) {
+      this.moveVector.z = -1;
+    } else if (event.keyCode === 83 /* S */) {
+      this.moveVector.z = 1;
+    } else if (event.keyCode === 81 /* W */ || event.keyCode === 65 /* A */) {
+      this.moveVector.x = -1;
+    } else if (event.keyCode === 68 /* D */) {
+      this.moveVector.x = 1;
+    } else if (event.keyCode === 32 /* SPACE */) {
+      this.moveVector.y = 1;
+    } else if (event.keyCode === 16 /* SHIFT */) {
+      this.moveVector.y = -1;
+    }
+  };
+
+  private onKeyUp = (event: KeyboardEvent) => {
+    if (event.keyCode === 87 /* W */ || event.keyCode === 90 /* Z */) {
+      this.moveVector.z = 0;
+    } else if (event.keyCode === 83 /* S */) {
+      this.moveVector.z = 0;
+    } else if (event.keyCode === 81 /* W */ || event.keyCode === 65 /* A */) {
+      this.moveVector.x = 0;
+    } else if (event.keyCode === 68 /* D */) {
+      this.moveVector.x = 0;
+    } else if (event.keyCode === 32 /* SPACE */) {
+      this.moveVector.y = 0;
+    } else if (event.keyCode === 16 /* SHIFT */) {
+      this.moveVector.y = 0;
+    }
+  };
+
   private onMouseUp = (event: MouseEvent) => {
     if (event.button === 2) this.isPanning = false;
-    else if (event.button === 1) this.isOrbiting = false;
+    else if (event.button === 1 || event.button === 0) this.isOrbiting = false;
   };
 
   update() {
+    if (this.moveVector.length() !== 0) {
+      let rotatedMoveVector = this.moveVector.clone();
+      rotatedMoveVector.applyQuaternion(this.camera.threeCamera.quaternion).normalize().multiplyScalar(moveSpeed);
+      this.camera.threeCamera.position.add(rotatedMoveVector);
+      this.orbitingPivot.add(rotatedMoveVector);
+    }
+
     this.theta += (this.targetTheta - this.theta) * lerpFactor;
     this.phi += (this.targetPhi - this.phi) * lerpFactor;
 
