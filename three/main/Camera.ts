@@ -48,7 +48,15 @@ export default class Camera{
 
   setOrthographicScale(orthographicScale: number) {
     this.orthographicScale = orthographicScale;
-    if (this.isOrthographic) this.projectionNeedsUpdate = true;
+    if (this.isOrthographic) {
+      // NOTE: Apply immediately because it's used for ray calculation
+      const orthographicCamera = this.threeCamera as THREE.OrthographicCamera;
+      orthographicCamera.left = -this.orthographicScale * this.cachedRatio / 2;
+      orthographicCamera.right = this.orthographicScale * this.cachedRatio / 2;
+      orthographicCamera.top = this.orthographicScale / 2;
+      orthographicCamera.bottom = -this.orthographicScale / 2;
+      this.threeCamera.updateProjectionMatrix();
+    }
     return this;
   }
 
