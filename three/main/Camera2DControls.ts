@@ -6,8 +6,11 @@ export default class Camera2DControls {
   private multiplier = 1;
   private isMoving = false;
 
-  constructor(private camera: Camera, private canvas: HTMLCanvasElement, options?: SupTHREE.Camera2DControlsOptions, private zoomCallback?: Function) {
-    this.options = options != null ? options : { zoomSpeed: 1.5, zoomMin: 0.1, zoomMax: 10000 };
+  constructor(private camera: Camera, private canvas: HTMLCanvasElement, options?: SupTHREE.Camera2DControlsOptions) {
+    this.options = options != null ? options : {};
+    if (this.options.zoomSpeed == null) this.options.zoomSpeed = 1.5;
+    if (this.options.zoomMin == null) this.options.zoomMin = 0.1;
+    if (this.options.zoomMax == null) this.options.zoomMax = 10000;
 
     canvas.addEventListener("mousedown", this.onMouseDown);
     canvas.addEventListener("mousemove", this.onMouseMove);
@@ -44,6 +47,7 @@ export default class Camera2DControls {
         .unproject(this.camera.threeCamera)
         .z = cameraZ;
       this.camera.threeCamera.updateMatrixWorld(false);
+      if (this.options.moveCallback != null) this.options.moveCallback();
     }
   };
 
@@ -58,7 +62,6 @@ export default class Camera2DControls {
   private onKeyPress = (event: KeyboardEvent) => {
     if (SupClient.Dialogs.BaseDialog.activeDialog != null) return;
 
-    console.log(event.keyCode);
     if (event.keyCode === 43 /* Ctrl+Numpad+ */) {
       const newOrthographicScale = Math.max(this.options.zoomMin, this.camera.orthographicScale * this.multiplier / this.options.zoomSpeed);
       this.changeOrthographicScale(newOrthographicScale);
@@ -77,6 +80,6 @@ export default class Camera2DControls {
     this.camera.threeCamera.position.x += startPosition.x - endPosition.x;
     this.camera.threeCamera.position.y += startPosition.y - endPosition.y;
     this.camera.threeCamera.updateMatrixWorld(false);
-    if (this.zoomCallback != null) this.zoomCallback();
+    if (this.options.zoomCallback != null) this.options.zoomCallback();
   }
 }

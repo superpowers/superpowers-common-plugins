@@ -60,6 +60,8 @@ export default class Camera{
     return this;
   }
 
+  getOrthographicScale() { return this.orthographicScale; }
+
   setViewport(x: number, y: number, width: number, height: number) {
     this.viewport.x = x;
     this.viewport.y = y;

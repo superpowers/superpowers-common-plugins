@@ -28,6 +28,7 @@ declare namespace SupTHREE {
     setOrthographicMode(isOrthographic: boolean): Camera;
     setFOV(fov: number): Camera;
     setOrthographicScale(orthographicScale: number): Camera;
+    getOrthographicScale(): number;
     setViewport(x: number, y: number, width: number, height: number): Camera;
     setDepth(depth: number): Camera;
     setNearClippingPlane(nearClippingPlane: number): Camera;
@@ -36,13 +37,15 @@ declare namespace SupTHREE {
   }
 
   interface Camera2DControlsOptions {
-    zoomMin: number;
-    zoomMax: number;
-    zoomSpeed: number;
+    zoomMin?: number;
+    zoomMax?: number;
+    zoomSpeed?: number;
+    zoomCallback?: Function;
+    moveCallback?: Function;
   }
 
   export class Camera2DControls {
-    constructor(camera: Camera, canvas: HTMLCanvasElement, options?: Camera2DControlsOptions, zoomCallback?: Function);
+    constructor(camera: Camera, canvas: HTMLCanvasElement, options?: Camera2DControlsOptions);
     setMultiplier(newMultiplier: number): Camera2DControls;
   }
 
