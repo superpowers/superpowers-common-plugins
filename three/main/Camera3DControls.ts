@@ -45,6 +45,7 @@ export default class Camera3DControls {
     document.addEventListener("mouseup", this.onMouseUp);
     canvas.addEventListener("mouseout", this.onMouseUp);
     canvas.addEventListener("contextmenu", (event) => { event.preventDefault(); });
+    window.addEventListener("blur", this.onBlur);
   }
 
   private onMouseDown = (event: MouseEvent) => {
@@ -124,6 +125,12 @@ export default class Camera3DControls {
   private onMouseUp = (event: MouseEvent) => {
     if (event.button === 2) this.isPanning = false;
     else if (event.button === 1 || event.button === 0) this.isOrbiting = false;
+  };
+
+  private onBlur = (event: Event) => {
+    this.moveVector.set(0, 0, 0);
+    this.isOrbiting = false;
+    this.isPanning = false;
   };
 
   resetOrbitingPivot(position: THREE.Vector3) {
