@@ -91,6 +91,8 @@ export default class Camera3DControls {
   };
 
   private onKeyDown = (event: KeyboardEvent) => {
+    if (event.ctrlKey || event.altKey || event.metaKey) return;
+
     if (event.keyCode === 87 /* W */ || event.keyCode === 90 /* Z */) {
       this.moveVector.z = -1;
     } else if (event.keyCode === 83 /* S */) {
