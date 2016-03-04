@@ -12,7 +12,7 @@ export default class GridHelper {
       this.gridHelper.material.dispose();
     }
 
-    let actualSize = Math.ceil(size / step) * step;
+    const actualSize = Math.ceil(size / step) * step;
 
     this.gridHelper = new THREE.GridHelper(actualSize, step);
     this.gridHelper.color1.setRGB(1, 1, 1);
