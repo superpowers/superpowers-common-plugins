@@ -5,12 +5,15 @@ let data: {
 };
 
 const socket = SupClient.connect(SupClient.query.project);
+
+// NOTE: Listening for "welcome" rather than "connect"
+// because SupCore.system.id is only set after "welcome"
 socket.on("welcome", onWelcome);
 socket.on("disconnect", SupClient.onDisconnected);
 SupClient.setupHotkeys();
 
 function onWelcome() {
-  data = { projectClient: new SupClient.ProjectClient(socket), };
+  data = { projectClient: new SupClient.ProjectClient(socket) };
   loadPlugins();
 }
 
