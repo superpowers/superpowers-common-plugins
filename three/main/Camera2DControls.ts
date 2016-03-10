@@ -52,6 +52,8 @@ export default class Camera2DControls {
   };
 
   private onWheel = (event: WheelEvent) => {
+    if (event.ctrlKey) return;
+
     let newOrthographicScale: number;
     if (event.deltaY > 0) newOrthographicScale = Math.min(this.options.zoomMax, this.camera.orthographicScale * this.multiplier * this.options.zoomSpeed);
     else if (event.deltaY < 0) newOrthographicScale = Math.max(this.options.zoomMin, this.camera.orthographicScale * this.multiplier / this.options.zoomSpeed);
