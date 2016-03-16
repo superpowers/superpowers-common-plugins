@@ -181,7 +181,6 @@ function onLinkClicked(event: MouseEvent) {
   let anchorElt = event.target as HTMLAnchorElement;
   if (anchorElt.tagName === "A") {
     event.preventDefault();
-    console.log("clicked");
 
     if (SupClient.isApp) {
       const electron: GitHubElectron.Electron = (top as any).global.require("electron");
