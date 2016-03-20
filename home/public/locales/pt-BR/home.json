@@ -1,0 +1,11 @@
+{
+  "links": {
+    "title": "Links",
+    "officialWebsite": "Site Oficial",
+    "devRoadmap": "Roteiro de Desenvolvimento",
+    "skypeGroupChat": "Conversa em Grupo no Skype: ",
+    "forums": "Fóruns: ",
+    "chatPlaceholder": "Digite aqui para conversar"
+  },
+  "onlineMembers": "Membros Online"
+}
