@@ -14,7 +14,6 @@ function start() {
   socket = SupClient.connect(SupClient.query.project);
   socket.on("connect", onConnected);
   socket.on("disconnect", SupClient.onDisconnected);
-  SupClient.setupHotkeys();
 
   // Chat
   document.querySelector(".chat-input textarea").addEventListener("keydown", onChatInputKeyDown);

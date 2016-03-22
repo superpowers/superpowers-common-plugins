@@ -10,7 +10,6 @@ const socket = SupClient.connect(SupClient.query.project);
 // because SupCore.system.id is only set after "welcome"
 socket.on("welcome", onWelcome);
 socket.on("disconnect", SupClient.onDisconnected);
-SupClient.setupHotkeys();
 
 function onWelcome() {
   data = { projectClient: new SupClient.ProjectClient(socket) };
