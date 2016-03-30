@@ -15,13 +15,6 @@ declare namespace SupTHREE {
     hide(): SelectionBoxRenderer;
   }
 
-  export class SelectionRectangleRenderer {
-    constructor(root: THREE.Object3D);
-    setSize(width: number, height: number): SelectionRectangleRenderer;
-    setPosition(x: number, y: number): SelectionRectangleRenderer;
-    hide(): SelectionRectangleRenderer;
-  }
-
   export class TransformHandle {
     control: any;
     mode: string;
