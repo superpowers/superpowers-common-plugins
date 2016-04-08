@@ -84,9 +84,11 @@ export default class Camera3DControls {
   };
 
   private onWheel = (event: WheelEvent) => {
-    const multiplicator = event.deltaY / 100 * 1.3;
-    if (event.deltaY > 0) this.orbitingRadius *= multiplicator;
-    else if (event.deltaY < 0) this.orbitingRadius /= -multiplicator;
+    const multiplier = event.deltaY / 100 * 1.3;
+    if (event.deltaY > 0) this.orbitingRadius *= multiplier;
+    else if (event.deltaY < 0) this.orbitingRadius /= -multiplier;
+    else return;
+
     this.orbitingRadius = Math.max(this.orbitingRadius, minOrbitingRadius);
   };
 

@@ -49,7 +49,7 @@ function setupSettings() {
 
   const plugins = SupClient.getPlugins<SupClient.SettingsEditorPlugin>("settingsEditors");
   const sortedNames = Object.keys(plugins);
-  sortedNames.sort((a, b) => { return (a.toLowerCase() < b.toLowerCase()) ? -1 : 1; });
+  sortedNames.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
   const createSection = (namespace: string) => {
     const sectionHeaderElt = document.createElement("header");
