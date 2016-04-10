@@ -1,0 +1,11 @@
+{
+  "links": {
+    "title": "連結",
+    "officialWebsite": "官方網站",
+    "devRoadmap": "開發規劃",
+    "skypeGroupChat": "Skype 群組聊天: ",
+    "forums": "論壇: ",
+    "chatPlaceholder": "輸入聊天訊息"
+  },
+  "onlineMembers": "線上成員"
+}
