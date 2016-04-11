@@ -791,7 +791,10 @@
 
 			scope.object.updateMatrixWorld();
 			worldPosition.setFromMatrixPosition( scope.object.matrixWorld );
-			worldRotation.setFromRotationMatrix( tempMatrix.extractRotation( scope.object.matrixWorld ) );
+
+			// NOTE: Workaround for negative scales messing with extracted rotation — elisee
+			let negativeScaleFixMatrix = new THREE.Matrix4().makeScale( scope.object.scale.x / Math.abs(scope.object.scale.x), scope.object.scale.y / Math.abs(scope.object.scale.y), scope.object.scale.z / Math.abs(scope.object.scale.z) );
+			worldRotation.setFromRotationMatrix( tempMatrix.extractRotation( scope.object.matrixWorld ).multiply( negativeScaleFixMatrix ) );
 
 			camera.updateMatrixWorld();
 			camPosition.setFromMatrixPosition( camera.matrixWorld );
