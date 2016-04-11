@@ -86,39 +86,37 @@ class TextEditorWidget {
     this.codeMirrorInstance.on("changes", <any>this.edit);
     this.codeMirrorInstance.on("beforeChange", this.beforeChange);
 
-    this.setupElectronMenu();
+    this.setupAppMenu();
 
     this.clientId = clientId;
     projectClient.subResource("textEditorSettings", this);
   }
 
-  private setupElectronMenu() {
-    if (window.navigator.userAgent.indexOf("Electron") === -1) return;
+  private setupAppMenu() {
+    if (SupApp == null) return;
 
-    let electron: GitHubElectron.Electron = (top as any).global.require("electron");
-    let win = electron.remote.getCurrentWindow();
-
-    let menu = new electron.remote.Menu();
-    menu.append(new electron.remote.MenuItem({
+    const menu = SupApp.createMenu();
+    menu.append(SupApp.createMenuItem({
       label: SupClient.i18n.t("common:actions.cut"),
       accelerator: "CmdOrCtrl+X",
       click: () => { document.execCommand("cut"); }
     }));
-    menu.append(new electron.remote.MenuItem({
+    menu.append(SupApp.createMenuItem({
       label: SupClient.i18n.t("common:actions.copy"),
       accelerator: "CmdOrCtrl+C",
       click: () => { document.execCommand("copy"); }
     }));
-    menu.append(new electron.remote.MenuItem({
+    menu.append(SupApp.createMenuItem({
       label: SupClient.i18n.t("common:actions.paste"),
       accelerator: "CmdOrCtrl+V",
       click: () => { document.execCommand("paste"); }
     }));
 
+    const win = SupApp.getCurrentWindow();
+
     this.codeMirrorInstance.getWrapperElement().addEventListener("contextmenu", (event) => {
       event.preventDefault();
-      let bounds = win.getBounds();
-      menu.popup(win, event.screenX - bounds.x, event.screenY - bounds.y);
+      menu.popup(win);
       return false;
     });
   }

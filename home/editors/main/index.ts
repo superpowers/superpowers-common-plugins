@@ -181,12 +181,8 @@ function onLinkClicked(event: MouseEvent) {
   if (anchorElt.tagName === "A") {
     event.preventDefault();
 
-    if (SupClient.isApp) {
-      const electron: GitHubElectron.Electron = (top as any).global.require("electron");
-      electron.shell.openExternal(anchorElt.href);
-    } else {
-      window.open(anchorElt.href, "_blank");
-    }
+    if (SupApp != null) SupApp.openLink(anchorElt.href);
+    else window.open(anchorElt.href, "_blank");
   }
 }
 
