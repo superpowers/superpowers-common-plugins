@@ -77,34 +77,27 @@ body
     padding 0.5em
     font-size 14px
 
-.sidebar
-  width 250px
-  border-left 1px solid #aaa
-  display flex
-  flex-flow column
+.sidebar {
+  width: 200px;
+  border-left: 1px solid #ddd;
 
-  > div
-    display flex
-    flex-flow column
+  display: flex;
+  flex-flow: column;
 
-  .header
-    background #ccc
-    text-transform uppercase
-    padding 0.5em
-    font-weight bold
+  ol, ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+}
 
-  .content
-    padding 0.5em
-    flex 1
-    overflow-y auto
+.sidebar .links {
+  background: #eee;
+  padding: 1em;
+  border-bottom: 1px solid #ddd;
+}
 
-    ul
-      list-style none
-      margin 0
-      padding 0
-
-    li
-      margin 0.5em 0
-
-.members
-  flex 1
+.sidebar .members {
+  flex: 1;
+  padding: 1em;
+}
