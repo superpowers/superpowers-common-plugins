@@ -115,7 +115,7 @@ export default class Camera{
       this.viewport.width * this.canvas.width, this.viewport.height * this.canvas.height
     );
 
-    for (let channel of channels) {
+    for (const channel of channels) {
       renderer.clearDepth();
       this.threeCamera.channels.set(channel);
       renderer.render(scene, this.threeCamera);

@@ -30,9 +30,9 @@ function onConnected() {
 function onRoomReceived(err: string, room: any) {
   data.room = new SupCore.Data.Room(room);
 
-  for (let roomUser of data.room.pub.users) appendRoomUser(roomUser);
+  for (const roomUser of data.room.pub.users) appendRoomUser(roomUser);
 
-  for (let entry of data.room.pub.history) appendHistoryEntry(entry);
+  for (const entry of data.room.pub.history) appendHistoryEntry(entry);
   scrollToBottom();
 };
 

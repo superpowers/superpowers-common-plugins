@@ -59,7 +59,7 @@ class TextEditorWidget {
       "Cmd-Y": () => { this.redo(); }
     };
     if (options.extraKeys != null) {
-      for (let keyName in options.extraKeys) {
+      for (const keyName in options.extraKeys) {
         extraKeys[keyName] = options.extraKeys[keyName];
       }
     }
@@ -246,7 +246,7 @@ class TextEditorWidget {
   applyOperation(operation: OT.TextOperation, origin: string, moveCursor: boolean) {
     let cursorPosition = 0;
     let line = 0;
-    for (let op of operation.ops) {
+    for (const op of operation.ops) {
       switch (op.type) {
         case "retain": {
           while (true) {
