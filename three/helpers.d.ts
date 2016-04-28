@@ -19,7 +19,7 @@ declare namespace SupTHREE {
     control: any;
     mode: string;
 
-    constructor(scene: THREE.Scene, root: THREE.Object3D, threeCamera: THREE.Camera, canvas: HTMLCanvasElement);
+    constructor(scene: THREE.Scene, threeCamera: THREE.Camera, canvas: HTMLCanvasElement);
     update(): void;
     setMode(mode: string): TransformHandle;
     setSpace(space: string): TransformHandle;

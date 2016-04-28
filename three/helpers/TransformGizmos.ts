@@ -1,3 +1,61 @@
+class GizmoMaterial extends THREE.MeshBasicMaterial {
+  private oldColor: THREE.Color;
+  private oldOpacity: number;
+
+  constructor(parameters: THREE.MeshBasicMaterialParameters) {
+    super(parameters);
+
+    this.depthTest = false;
+    this.depthWrite = false;
+    this.side = THREE.FrontSide;
+    this.transparent = true;
+
+    this.setValues(parameters);
+
+    this.oldColor = this.color.clone();
+    this.oldOpacity = this.opacity;
+  }
+
+  highlight(highlighted: boolean) {
+    if (highlighted) {
+      this.color.setRGB(1, 1, 0);
+      this.opacity = 1;
+    } else {
+      this.color.copy(this.oldColor);
+      this.opacity = this.oldOpacity;
+    }
+  }
+}
+
+class GizmoLineMaterial extends THREE.LineBasicMaterial {
+  private oldColor: THREE.Color;
+  private oldOpacity: number;
+
+  constructor(parameters: THREE.LineBasicMaterialParameters) {
+    super(parameters);
+
+    this.depthTest = false;
+    this.depthWrite = false;
+    this.transparent = true;
+    this.linewidth = 1;
+
+    this.setValues(parameters);
+
+    this.oldColor = this.color.clone();
+    this.oldOpacity = this.opacity;
+  }
+
+  highlight(highlighted: boolean) {
+    if (highlighted) {
+      this.color.setRGB(1, 1, 0);
+      this.opacity = 1;
+    } else {
+      this.color.copy(this.oldColor);
+      this.opacity = this.oldOpacity;
+    }
+  };
+};
+
 const pickerMaterial = new GizmoMaterial({ visible: false, transparent: false });
 type GizmoMap = { [name: string]: any[]; };
 
@@ -47,8 +105,9 @@ export abstract class TransformGizmo extends THREE.Object3D {
 
     // Reset Transformations
     this.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
+      child.channels.set(1);
 
+      if (child instanceof THREE.Mesh) {
         child.updateMatrix();
 
         const tempGeometry = child.geometry.clone();
@@ -311,61 +370,3 @@ export class TransformGizmoScale extends TransformGizmo {
     } else if (axis === "XYZ") this.activePlane = this.planes["XYZE"];
   }
 }
-
-class GizmoMaterial extends THREE.MeshBasicMaterial {
-  private oldColor: THREE.Color;
-  private oldOpacity: number;
-
-  constructor(parameters: THREE.MeshBasicMaterialParameters) {
-    super(parameters);
-
-    this.depthTest = false;
-    this.depthWrite = false;
-    this.side = THREE.FrontSide;
-    this.transparent = true;
-
-    this.setValues(parameters);
-
-    this.oldColor = this.color.clone();
-    this.oldOpacity = this.opacity;
-  }
-
-  highlight(highlighted: boolean) {
-    if (highlighted) {
-      this.color.setRGB(1, 1, 0);
-      this.opacity = 1;
-    } else {
-      this.color.copy(this.oldColor);
-      this.opacity = this.oldOpacity;
-    }
-  }
-}
-
-class GizmoLineMaterial extends THREE.LineBasicMaterial {
-  private oldColor: THREE.Color;
-  private oldOpacity: number;
-
-  constructor(parameters: THREE.LineBasicMaterialParameters) {
-    super(parameters);
-
-    this.depthTest = false;
-    this.depthWrite = false;
-    this.transparent = true;
-    this.linewidth = 1;
-
-    this.setValues(parameters);
-
-    this.oldColor = this.color.clone();
-    this.oldOpacity = this.opacity;
-  }
-
-  highlight(highlighted: boolean) {
-    if (highlighted) {
-      this.color.setRGB(1, 1, 0);
-      this.opacity = 1;
-    } else {
-      this.color.copy(this.oldColor);
-      this.opacity = this.oldOpacity;
-    }
-  };
-};

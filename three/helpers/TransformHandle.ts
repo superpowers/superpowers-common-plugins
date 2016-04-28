@@ -3,14 +3,13 @@ import TransformControls from "./TransformControls";
 export default class TransformHandle {
   control: TransformControls;
 
+  private root = new THREE.Object3D();
   private target: THREE.Object3D;
-  mode = "translate";
-  private space = "world";
-  private controlVisible = false;
 
-  constructor(scene: THREE.Scene, private root: THREE.Object3D, threeCamera: THREE.Camera, canvas: HTMLCanvasElement) {
+  constructor(scene: THREE.Scene, threeCamera: THREE.Camera, canvas: HTMLCanvasElement) {
+    scene.add(this.root);
+
     this.control = new TransformControls(threeCamera, canvas);
-    this.control.traverse((object: THREE.Object3D) => { object.channels.set(1); });
     scene.add(this.control);
   }
 
@@ -20,26 +19,18 @@ export default class TransformHandle {
   }
 
   setMode(mode: string) {
-    this.mode = mode;
-    if (this.target != null) {
-      this.control.setMode(mode);
-      this.control.setSpace(this.mode === "scale" ? "local" : this.space);
-    }
+    if (this.target != null) this.control.setMode(mode);
     return this;
   }
 
   setSpace(space: string) {
-    this.space = space;
-    if (this.target != null && this.mode !== "scale") this.control.setSpace(space);
+    if (this.target != null) this.control.setSpace(space);
     return this;
   }
 
   setTarget(target: THREE.Object3D) {
     this.target = target;
-    this.controlVisible = true;
     this.control.attach(this.root);
-    this.control.setSpace(this.mode === "scale" ? "local" : this.space);
-    this.control.setMode(this.mode);
     this.move();
     return this;
   }
@@ -56,7 +47,6 @@ export default class TransformHandle {
   }
 
   hide() {
-    this.controlVisible = false;
     this.control.detach();
     return this;
   }

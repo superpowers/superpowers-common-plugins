@@ -3,4 +3,3 @@
 **/*.css
 **/*.js
 !**/*Gulpfile.js
-!TransformControls.js

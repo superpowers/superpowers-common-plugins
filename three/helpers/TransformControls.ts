@@ -50,9 +50,9 @@ export default class TransformControls extends THREE.Object3D {
   private size = 1;
   private axis: string;
 
-  private object: THREE.Object3D;
+  object: THREE.Object3D;
   private mode = "translate";
-  private space = "world";
+  private space = "local";
   private dragging = false;
   private gizmo: { [name: string]: TransformGizmo; } = {
     "translate": new TransformGizmoTranslate(),
@@ -123,7 +123,6 @@ export default class TransformControls extends THREE.Object3D {
 
   setMode(mode: string) {
     this.mode = mode;
-    if (mode === "scale") this.space = "local";
 
     for (const type in this.gizmo) this.gizmo[type].visible = (type === mode);
 
@@ -166,7 +165,7 @@ update() {
 
     eye.copy(camPosition).sub(worldPosition).normalize();
 
-    if (this.space === "local") this.gizmo[this.mode].update(worldRotation, eye);
+    if (this.space === "local" || this.mode === "scale") this.gizmo[this.mode].update(worldRotation, eye);
     else if (this.space === "world") this.gizmo[this.mode].update(new THREE.Euler(), eye);
 
     this.gizmo[this.mode].highlight(this.axis);
@@ -287,20 +286,18 @@ update() {
       point.sub(offset);
       point.multiply(parentScale);
 
-      if (this.space === "local") {
-        if (this.axis === "XYZ") {
-          const scale = 1 + ( (point.y) / Math.max(oldScale.x, oldScale.y, oldScale.z));
+      if (this.axis === "XYZ") {
+        const scale = 1 + ( (point.y) / Math.max(oldScale.x, oldScale.y, oldScale.z));
 
-          this.object.scale.x = oldScale.x * scale;
-          this.object.scale.y = oldScale.y * scale;
-          this.object.scale.z = oldScale.z * scale;
-        } else {
-          point.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
+        this.object.scale.x = oldScale.x * scale;
+        this.object.scale.y = oldScale.y * scale;
+        this.object.scale.z = oldScale.z * scale;
+      } else {
+        point.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
 
-          if (this.axis === "X") this.object.scale.x = oldScale.x * (1 + point.x / oldScale.x);
-          if (this.axis === "Y") this.object.scale.y = oldScale.y * (1 + point.y / oldScale.y);
-          if (this.axis === "Z") this.object.scale.z = oldScale.z * (1 + point.z / oldScale.z);
-        }
+        if (this.axis === "X") this.object.scale.x = oldScale.x * (1 + point.x / oldScale.x);
+        if (this.axis === "Y") this.object.scale.y = oldScale.y * (1 + point.y / oldScale.y);
+        if (this.axis === "Z") this.object.scale.z = oldScale.z * (1 + point.z / oldScale.z);
       }
 
     } else if (this.mode === "rotate") {
