@@ -1,7 +1,7 @@
-import "./TransformControls";
+import TransformControls from "./TransformControls";
 
 export default class TransformHandle {
-  control: any; // : THREE.TransformControls;
+  control: TransformControls;
 
   private target: THREE.Object3D;
   mode = "translate";
@@ -9,7 +9,7 @@ export default class TransformHandle {
   private controlVisible = false;
 
   constructor(scene: THREE.Scene, private root: THREE.Object3D, threeCamera: THREE.Camera, canvas: HTMLCanvasElement) {
-    this.control = new (THREE as any).TransformControls(threeCamera, canvas);
+    this.control = new TransformControls(threeCamera, canvas);
     this.control.traverse((object: THREE.Object3D) => { object.channels.set(1); });
     scene.add(this.control);
   }
