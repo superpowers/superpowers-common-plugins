@@ -47,10 +47,11 @@ export default class TransformControls extends THREE.Object3D {
   visible = false;
   translationSnap: number;
   rotationSnap: number;
+  root = new THREE.Object3D();
+
+  private target: THREE.Object3D;
   private size = 1;
   private axis: string;
-
-  object: THREE.Object3D;
   private mode = "translate";
   private space = "local";
   private dragging = false;
@@ -65,8 +66,11 @@ export default class TransformControls extends THREE.Object3D {
   private mouseUpEvent = { type: "mouseUp", mode: this.mode, target: null as any };
   private objectChangeEvent = { type: "objectChange", target: null as any };
 
-  constructor(private camera: THREE.Camera, private domElement: HTMLElement) {
+  constructor(scene: THREE.Scene, private camera: THREE.Camera, private domElement: HTMLElement) {
     super();
+
+    scene.add(this);
+    scene.add(this.root);
 
     for (const type in this.gizmo) {
       const gizmoObj = this.gizmo[type];
@@ -108,15 +112,17 @@ export default class TransformControls extends THREE.Object3D {
   }
 
   attach(object: THREE.Object3D) {
-    this.object = object;
+    this.target = object;
     this.visible = true;
     this.update();
+    return this;
   };
 
   detach() {
-    this.object = null;
+    this.target = null;
     this.visible = false;
     this.axis = null;
+    return this;
   };
 
   getMode() { return this.mode; };
@@ -126,34 +132,47 @@ export default class TransformControls extends THREE.Object3D {
 
     for (const type in this.gizmo) this.gizmo[type].visible = (type === mode);
 
+    if (this.target == null) return this;
     this.update();
     this.dispatchEvent(this.changeEvent);
+    return this;
   };
 
   setSize(size: number) {
     this.size = size;
+    if (this.target == null) return this;
+
     this.update();
     this.dispatchEvent(this.changeEvent);
+    return this;
   };
 
   setSpace(space: string) {
     this.space = space;
+    if (this.target == null) return this;
+
     this.update();
     this.dispatchEvent(this.changeEvent);
+    return this;
   };
 
-update() {
-    if (this.object === null) return;
+  update(copyTarget = true) {
+    if (this.target == null) return;
 
-    this.object.updateMatrixWorld(false);
-    worldPosition.setFromMatrixPosition(this.object.matrixWorld);
+    if (copyTarget) {
+      this.root.position.copy(this.target.getWorldPosition());
+      this.root.quaternion.copy(this.target.getWorldQuaternion());
+      this.root.scale.copy(this.target.scale);
+    }
+    this.root.updateMatrixWorld(false);
+    worldPosition.setFromMatrixPosition(this.root.matrixWorld);
 
     // NOTE: Workaround for negative scales messing with extracted rotation — elisee
-    const scaleX = this.object.scale.x / Math.abs(this.object.scale.x);
-    const scaleY = this.object.scale.y / Math.abs(this.object.scale.y);
-    const scaleZ = this.object.scale.z / Math.abs(this.object.scale.z);
+    const scaleX = this.root.scale.x / Math.abs(this.root.scale.x);
+    const scaleY = this.root.scale.y / Math.abs(this.root.scale.y);
+    const scaleZ = this.root.scale.z / Math.abs(this.root.scale.z);
     const negativeScaleFixMatrix = new THREE.Matrix4().makeScale(scaleX, scaleY, scaleZ);
-    worldRotation.setFromRotationMatrix(tempMatrix.extractRotation(this.object.matrixWorld).multiply(negativeScaleFixMatrix));
+    worldRotation.setFromRotationMatrix(tempMatrix.extractRotation(this.root.matrixWorld).multiply(negativeScaleFixMatrix));
 
     this.camera.updateMatrixWorld(false);
     camPosition.setFromMatrixPosition(this.camera.matrixWorld);
@@ -169,10 +188,12 @@ update() {
     else if (this.space === "world") this.gizmo[this.mode].update(new THREE.Euler(), eye);
 
     this.gizmo[this.mode].highlight(this.axis);
+
+    this.updateMatrixWorld(true);
   };
 
-  onPointerDown = (event: MouseEvent|TouchEvent) => {
-    if (this.object == null || this.dragging || ((event as MouseEvent).button != null && (event as MouseEvent).button !== 0)) return;
+  private onPointerDown = (event: MouseEvent|TouchEvent) => {
+    if (this.target == null || this.dragging || ((event as MouseEvent).button != null && (event as MouseEvent).button !== 0)) return;
 
     const pointer: MouseEvent = (event as any).changedTouches ? (event as any).changedTouches[ 0 ] : event;
 
@@ -194,14 +215,14 @@ update() {
         const planeIntersect = this.intersectObjects(pointer, [ this.gizmo[this.mode].activePlane ]);
 
         if (planeIntersect != null) {
-          oldPosition.copy(this.object.position);
-          oldScale.copy(this.object.scale);
+          oldPosition.copy(this.root.position);
+          oldScale.copy(this.root.scale);
 
-          oldRotationMatrix.extractRotation(this.object.matrix);
-          worldRotationMatrix.extractRotation(this.object.matrixWorld);
+          oldRotationMatrix.extractRotation(this.root.matrix);
+          worldRotationMatrix.extractRotation(this.root.matrixWorld);
 
-          parentRotationMatrix.extractRotation(this.object.parent.matrixWorld);
-          parentScale.setFromMatrixScale(tempMatrix.getInverse(this.object.parent.matrixWorld));
+          parentRotationMatrix.extractRotation(this.root.parent.matrixWorld);
+          parentScale.setFromMatrixScale(tempMatrix.getInverse(this.root.parent.matrixWorld));
 
           offset.copy(planeIntersect.point);
         }
@@ -211,8 +232,8 @@ update() {
     this.dragging = true;
   };
 
-  onPointerHover = (event: MouseEvent|TouchEvent) => {
-    if (this.object == null || this.dragging || ((event as MouseEvent).button != null && (event as MouseEvent).button !== 0)) return;
+  private onPointerHover = (event: MouseEvent|TouchEvent) => {
+    if (this.target == null || this.dragging || ((event as MouseEvent).button != null && (event as MouseEvent).button !== 0)) return;
 
     const pointer: MouseEvent = (event as any).changedTouches ? (event as any).changedTouches[ 0 ] : event;
 
@@ -231,8 +252,8 @@ update() {
     }
   };
 
-  onPointerMove = (event: MouseEvent|TouchEvent) => {
-    if (this.object == null || this.axis == null || !this.dragging || ((event as MouseEvent).button != null && (event as MouseEvent).button !== 0)) return;
+  private onPointerMove = (event: MouseEvent|TouchEvent) => {
+    if (this.target == null || this.axis == null || !this.dragging || ((event as MouseEvent).button != null && (event as MouseEvent).button !== 0)) return;
 
     const pointer: MouseEvent = (event as any).changedTouches ? (event as any).changedTouches[ 0 ] : event;
 
@@ -257,8 +278,8 @@ update() {
 
         point.applyMatrix4(oldRotationMatrix);
 
-        this.object.position.copy(oldPosition);
-        this.object.position.add(point);
+        this.root.position.copy(oldPosition);
+        this.root.position.add(point);
       }
 
       if (this.space === "world" || this.axis.search("XYZ") !== - 1) {
@@ -268,18 +289,18 @@ update() {
 
         point.applyMatrix4(tempMatrix.getInverse(parentRotationMatrix));
 
-        this.object.position.copy(oldPosition);
-        this.object.position.add(point);
+        this.root.position.copy(oldPosition);
+        this.root.position.add(point);
       }
 
       if (this.translationSnap !== null) {
-        if (this.space === "local") this.object.position.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
+        if (this.space === "local") this.root.position.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
 
-        if (this.axis.search("X") !== - 1) this.object.position.x = Math.round(this.object.position.x / this.translationSnap) * this.translationSnap;
-        if (this.axis.search("Y") !== - 1) this.object.position.y = Math.round(this.object.position.y / this.translationSnap) * this.translationSnap;
-        if (this.axis.search("Z") !== - 1) this.object.position.z = Math.round(this.object.position.z / this.translationSnap) * this.translationSnap;
+        if (this.axis.search("X") !== - 1) this.root.position.x = Math.round(this.root.position.x / this.translationSnap) * this.translationSnap;
+        if (this.axis.search("Y") !== - 1) this.root.position.y = Math.round(this.root.position.y / this.translationSnap) * this.translationSnap;
+        if (this.axis.search("Z") !== - 1) this.root.position.z = Math.round(this.root.position.z / this.translationSnap) * this.translationSnap;
 
-        if (this.space === "local") this.object.position.applyMatrix4(worldRotationMatrix);
+        if (this.space === "local") this.root.position.applyMatrix4(worldRotationMatrix);
       }
 
     } else if (this.mode === "scale") {
@@ -289,15 +310,15 @@ update() {
       if (this.axis === "XYZ") {
         const scale = 1 + ( (point.y) / Math.max(oldScale.x, oldScale.y, oldScale.z));
 
-        this.object.scale.x = oldScale.x * scale;
-        this.object.scale.y = oldScale.y * scale;
-        this.object.scale.z = oldScale.z * scale;
+        this.root.scale.x = oldScale.x * scale;
+        this.root.scale.y = oldScale.y * scale;
+        this.root.scale.z = oldScale.z * scale;
       } else {
         point.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
 
-        if (this.axis === "X") this.object.scale.x = oldScale.x * (1 + point.x / oldScale.x);
-        if (this.axis === "Y") this.object.scale.y = oldScale.y * (1 + point.y / oldScale.y);
-        if (this.axis === "Z") this.object.scale.z = oldScale.z * (1 + point.z / oldScale.z);
+        if (this.axis === "X") this.root.scale.x = oldScale.x * (1 + point.x / oldScale.x);
+        if (this.axis === "Y") this.root.scale.y = oldScale.y * (1 + point.y / oldScale.y);
+        if (this.axis === "Z") this.root.scale.z = oldScale.z * (1 + point.z / oldScale.z);
       }
 
     } else if (this.mode === "rotate") {
@@ -321,7 +342,7 @@ update() {
         tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionE);
         tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionXYZ);
 
-        this.object.quaternion.copy(tempQuaternion);
+        this.root.quaternion.copy(tempQuaternion);
 
       } else if (this.axis === "XYZE") {
         quaternionE.setFromEuler(point.clone().cross(tempVector).normalize() as any); // rotation axis
@@ -333,7 +354,7 @@ update() {
         tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionX);
         tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionXYZ);
 
-        this.object.quaternion.copy(tempQuaternion);
+        this.root.quaternion.copy(tempQuaternion);
 
       } else if (this.space === "local") {
         point.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
@@ -359,7 +380,7 @@ update() {
         if (this.axis === "Y") quaternionXYZ.multiplyQuaternions(quaternionXYZ, quaternionY);
         if (this.axis === "Z") quaternionXYZ.multiplyQuaternions(quaternionXYZ, quaternionZ);
 
-        this.object.quaternion.copy(quaternionXYZ);
+        this.root.quaternion.copy(quaternionXYZ);
 
       } else if (this.space === "world") {
         rotation.set(Math.atan2(point.z, point.y), Math.atan2(point.x, point.z), Math.atan2(point.y, point.x));
@@ -385,16 +406,16 @@ update() {
 
         tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionXYZ);
 
-        this.object.quaternion.copy(tempQuaternion);
+        this.root.quaternion.copy(tempQuaternion);
       }
     }
 
-    this.update();
+    this.update(false);
     this.dispatchEvent(this.changeEvent);
     this.dispatchEvent(this.objectChangeEvent);
   };
 
-  onPointerUp = (event: MouseEvent) => {
+  private onPointerUp = (event: MouseEvent) => {
     if (event.button != null && event.button !== 0) return;
 
     if (this.dragging && (this.axis !== null)) {
@@ -406,7 +427,7 @@ update() {
     this.onPointerHover(event);
   };
 
-  intersectObjects(pointer: MouseEvent, objects: THREE.Object3D[]) {
+  private intersectObjects(pointer: MouseEvent, objects: THREE.Object3D[]) {
     const rect = this.domElement.getBoundingClientRect();
     const x = (pointer.clientX - rect.left) / rect.width;
     const y = (pointer.clientY - rect.top) / rect.height;

@@ -3,34 +3,38 @@
 declare namespace SupTHREE {
   export class GridHelper {
     constructor(root: THREE.Object3D, size: number, step: number);
-    setup(size: number, step: number): GridHelper;
-    setVisible(visible: boolean): GridHelper;
+    setup(size: number, step: number): this;
+    setVisible(visible: boolean): this;
   }
 
   export class SelectionBoxRenderer {
     constructor(root: THREE.Object3D);
-    setTarget(target: THREE.Object3D): SelectionBoxRenderer;
-    move(): SelectionBoxRenderer;
-    resize(): SelectionBoxRenderer;
-    hide(): SelectionBoxRenderer;
+    setTarget(target: THREE.Object3D): this;
+    move(): this;
+    resize(): this;
+    hide(): this;
   }
 
-  export class TransformHandle {
-    control: any;
-    mode: string;
+  export class TransformControls extends THREE.Object3D {
+    translationSnap: number;
+    rotationSnap: number;
+    root: THREE.Object3D;
 
     constructor(scene: THREE.Scene, threeCamera: THREE.Camera, canvas: HTMLCanvasElement);
+    dispose(): void;
+
+    attach(object: THREE.Object3D): this;
+    detach(): this;
+
     update(): void;
-    setMode(mode: string): TransformHandle;
-    setSpace(space: string): TransformHandle;
-    setTarget(target: THREE.Object3D): TransformHandle;
-    move(): TransformHandle;
-    hide(): TransformHandle;
+    getMode(): string;
+    setMode(mode: string): this;
+    setSpace(space: string): this;
   }
 
   export class TransformMarker {
     constructor(root: THREE.Object3D);
-    move(target: THREE.Object3D): TransformMarker;
-    hide(): TransformMarker;
+    move(target: THREE.Object3D): this;
+    hide(): this;
   }
 }
