@@ -312,3 +312,55 @@ export class TransformGizmoScale extends TransformGizmo {
     } else if (axis === "XYZ") this.activePlane = this.planes["XYZE"];
   }
 }
+
+export class TransformGizmoResize extends TransformGizmo {
+  initGizmos() {
+    // Handles
+    const geometry = new THREE.BoxGeometry(0.25, 0.04, 0.25);
+    const mesh = new THREE.Mesh(geometry);
+    mesh.position.y = 0.5;
+    mesh.updateMatrix();
+
+    const arrowGeometry = new THREE.Geometry();
+    arrowGeometry.merge(geometry, mesh.matrix);
+
+    const lineGeometry = new THREE.CylinderGeometry(0.02, 0.02, 1);
+
+    this.setupGizmo("X", new THREE.Mesh(arrowGeometry, new GizmoMaterial({ color: 0xff0000 })), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ]);
+    this.setupGizmo("X", new THREE.Mesh(lineGeometry, new GizmoLineMaterial({ color: 0xff0000 })), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ]);
+
+    this.setupGizmo("Y", new THREE.Mesh(arrowGeometry, new GizmoMaterial({ color: 0x00ff00 })), this.handlesRoot, [ 0, 0.5, 0 ]);
+    this.setupGizmo("Y", new THREE.Mesh(lineGeometry, new GizmoLineMaterial({ color: 0x00ff00 })), this.handlesRoot, [ 0, 0.5, 0 ]);
+
+    this.setupGizmo("Z", new THREE.Mesh(arrowGeometry, new GizmoMaterial({ color: 0x0000ff })), this.handlesRoot, [ 0, 0, 0.5 ], [ Math.PI / 2, 0, 0 ]);
+    this.setupGizmo("Z", new THREE.Mesh(lineGeometry, new GizmoLineMaterial({ color: 0x0000ff })), this.handlesRoot, [ 0, 0, 0.5 ], [ Math.PI / 2, 0, 0 ]);
+
+    this.setupGizmo("XYZ", new THREE.Mesh(new THREE.OctahedronGeometry(0.1, 0), new GizmoMaterial({ color: 0xffffff, opacity: 0.8 })), this.handlesRoot, [ 0, 0, 0 ], [ 0, 0, 0 ]);
+
+    // Pickers
+    this.setupGizmo("X", new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0, 1, 4, 1, false), pickerMaterial), this.pickersRoot, [ 0.6, 0, 0 ], [ 0, 0, - Math.PI / 2 ]);
+    this.setupGizmo("Y", new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0, 1, 4, 1, false), pickerMaterial), this.pickersRoot, [ 0, 0.6, 0 ]);
+    this.setupGizmo("Z", new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0, 1, 4, 1, false), pickerMaterial), this.pickersRoot, [ 0, 0, 0.6 ], [ Math.PI / 2, 0, 0 ]);
+
+    this.setupGizmo("XYZ", new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), pickerMaterial), this.pickersRoot);
+  }
+
+  setActivePlane(axis: string, eye: THREE.Vector3) {
+    const tempMatrix = new THREE.Matrix4();
+    eye.applyMatrix4(tempMatrix.getInverse(tempMatrix.extractRotation(this.planes["XY"].matrixWorld)));
+
+    if (axis === "X") {
+      if (Math.abs(eye.y) > Math.abs(eye.z)) this.activePlane = this.planes["XZ"];
+      else this.activePlane = this.planes["XY"];
+
+    } else if (axis === "Y") {
+      if (Math.abs(eye.x) > Math.abs(eye.z)) this.activePlane = this.planes["YZ"];
+      else this.activePlane = this.planes["XY"];
+
+    } else if (axis === "Z") {
+      if (Math.abs(eye.x) > Math.abs(eye.y)) this.activePlane = this.planes["YZ"];
+      else this.activePlane = this.planes["XZ"];
+
+    } else if (axis === "XYZ") this.activePlane = this.planes["XYZE"];
+  }
+}

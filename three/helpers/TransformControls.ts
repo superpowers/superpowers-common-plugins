@@ -3,7 +3,7 @@
  * Rewritten in TypeScript and modified by bilou84
  */
 
-import { TransformGizmo, TransformGizmoTranslate, TransformGizmoRotate, TransformGizmoScale } from "./TransformGizmos";
+import { TransformGizmo, TransformGizmoTranslate, TransformGizmoRotate, TransformGizmoScale, TransformGizmoResize } from "./TransformGizmos";
 
 const ray = new THREE.Raycaster();
 const pointerVector = new THREE.Vector2();
@@ -52,13 +52,14 @@ export default class TransformControls extends THREE.Object3D {
   private target: THREE.Object3D;
   private size = 1;
   private axis: string;
-  private mode = "translate";
+  private mode: "translate"|"rotate"|"scale"|"resize" = "translate";
   private space = "local";
   private dragging = false;
   private gizmo: { [name: string]: TransformGizmo; } = {
     "translate": new TransformGizmoTranslate(),
     "rotate": new TransformGizmoRotate(),
-    "scale": new TransformGizmoScale()
+    "scale": new TransformGizmoScale(),
+    "resize": new TransformGizmoResize()
   };
 
   private changeEvent = { type: "change", target: null as any };
@@ -127,7 +128,7 @@ export default class TransformControls extends THREE.Object3D {
 
   getMode() { return this.mode; };
 
-  setMode(mode: string) {
+  setMode(mode: "translate"|"rotate"|"scale"|"resize") {
     this.mode = mode;
 
     for (const type in this.gizmo) this.gizmo[type].visible = (type === mode);
@@ -162,7 +163,14 @@ export default class TransformControls extends THREE.Object3D {
     if (copyTarget) {
       this.root.position.copy(this.target.getWorldPosition());
       this.root.quaternion.copy(this.target.getWorldQuaternion());
-      this.root.scale.copy(this.target.scale);
+      if (this.mode === "resize") {
+        const geometry = (this.target as THREE.Mesh).geometry as THREE.BoxGeometry;
+        this.root.scale.x = geometry.parameters.width;
+        this.root.scale.y = geometry.parameters.height;
+        this.root.scale.z = geometry.parameters.depth != null ? geometry.parameters.depth : 1;
+      } else {
+        this.root.scale.copy(this.target.scale);
+      }
     }
     this.root.updateMatrixWorld(false);
     worldPosition.setFromMatrixPosition(this.root.matrixWorld);
@@ -265,149 +273,178 @@ export default class TransformControls extends THREE.Object3D {
 
     point.copy(planeIntersect.point);
 
-    if (this.mode === "translate") {
-      point.sub(offset);
-      point.multiply(parentScale);
+    switch (this.mode) {
+      case "translate": {
+        point.sub(offset);
+        point.multiply(parentScale);
 
-      if (this.space === "local") {
-        point.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
+        if (this.space === "local") {
+          point.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
 
-        if (this.axis.search("X") === - 1) point.x = 0;
-        if (this.axis.search("Y") === - 1) point.y = 0;
-        if (this.axis.search("Z") === - 1) point.z = 0;
+          if (this.axis.search("X") === - 1) point.x = 0;
+          if (this.axis.search("Y") === - 1) point.y = 0;
+          if (this.axis.search("Z") === - 1) point.z = 0;
 
-        point.applyMatrix4(oldRotationMatrix);
+          point.applyMatrix4(oldRotationMatrix);
 
-        this.root.position.copy(oldPosition);
-        this.root.position.add(point);
-      }
-
-      if (this.space === "world" || this.axis.search("XYZ") !== - 1) {
-        if (this.axis.search("X") === - 1) point.x = 0;
-        if (this.axis.search("Y") === - 1) point.y = 0;
-        if (this.axis.search("Z") === - 1) point.z = 0;
-
-        point.applyMatrix4(tempMatrix.getInverse(parentRotationMatrix));
-
-        this.root.position.copy(oldPosition);
-        this.root.position.add(point);
-      }
-
-      if (this.translationSnap !== null) {
-        if (this.space === "local") this.root.position.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
-
-        if (this.axis.search("X") !== - 1) this.root.position.x = Math.round(this.root.position.x / this.translationSnap) * this.translationSnap;
-        if (this.axis.search("Y") !== - 1) this.root.position.y = Math.round(this.root.position.y / this.translationSnap) * this.translationSnap;
-        if (this.axis.search("Z") !== - 1) this.root.position.z = Math.round(this.root.position.z / this.translationSnap) * this.translationSnap;
-
-        if (this.space === "local") this.root.position.applyMatrix4(worldRotationMatrix);
-      }
-
-    } else if (this.mode === "scale") {
-      point.sub(offset);
-      point.multiply(parentScale);
-
-      if (this.axis === "XYZ") {
-        const scale = 1 + ( (point.y) / Math.max(oldScale.x, oldScale.y, oldScale.z));
-
-        this.root.scale.x = oldScale.x * scale;
-        this.root.scale.y = oldScale.y * scale;
-        this.root.scale.z = oldScale.z * scale;
-      } else {
-        point.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
-
-        if (this.axis === "X") this.root.scale.x = oldScale.x * (1 + point.x / oldScale.x);
-        if (this.axis === "Y") this.root.scale.y = oldScale.y * (1 + point.y / oldScale.y);
-        if (this.axis === "Z") this.root.scale.z = oldScale.z * (1 + point.z / oldScale.z);
-      }
-
-    } else if (this.mode === "rotate") {
-      point.sub(worldPosition);
-      point.multiply(parentScale);
-      tempVector.copy(offset).sub(worldPosition);
-      tempVector.multiply(parentScale);
-
-      if (this.axis === "E") {
-        point.applyMatrix4(tempMatrix.getInverse(lookAtMatrix));
-        tempVector.applyMatrix4(tempMatrix.getInverse(lookAtMatrix));
-
-        rotation.set(Math.atan2(point.z, point.y), Math.atan2(point.x, point.z), Math.atan2(point.y, point.x));
-        offsetRotation.set(Math.atan2(tempVector.z, tempVector.y), Math.atan2(tempVector.x, tempVector.z), Math.atan2(tempVector.y, tempVector.x));
-
-        tempQuaternion.setFromRotationMatrix(tempMatrix.getInverse(parentRotationMatrix));
-
-        quaternionE.setFromAxisAngle(eye, rotation.z - offsetRotation.z);
-        quaternionXYZ.setFromRotationMatrix(worldRotationMatrix);
-
-        tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionE);
-        tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionXYZ);
-
-        this.root.quaternion.copy(tempQuaternion);
-
-      } else if (this.axis === "XYZE") {
-        quaternionE.setFromEuler(point.clone().cross(tempVector).normalize() as any); // rotation axis
-
-        tempQuaternion.setFromRotationMatrix(tempMatrix.getInverse(parentRotationMatrix));
-        quaternionX.setFromAxisAngle(quaternionE as any, - point.clone().angleTo(tempVector));
-        quaternionXYZ.setFromRotationMatrix(worldRotationMatrix);
-
-        tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionX);
-        tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionXYZ);
-
-        this.root.quaternion.copy(tempQuaternion);
-
-      } else if (this.space === "local") {
-        point.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
-
-        tempVector.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
-
-        rotation.set(Math.atan2(point.z, point.y), Math.atan2(point.x, point.z), Math.atan2(point.y, point.x));
-        offsetRotation.set(Math.atan2(tempVector.z, tempVector.y), Math.atan2(tempVector.x, tempVector.z), Math.atan2(tempVector.y, tempVector.x));
-
-        quaternionXYZ.setFromRotationMatrix(oldRotationMatrix);
-
-        if (this.rotationSnap !== null) {
-          quaternionX.setFromAxisAngle(unitX, Math.round( (rotation.x - offsetRotation.x) / this.rotationSnap) * this.rotationSnap);
-          quaternionY.setFromAxisAngle(unitY, Math.round( (rotation.y - offsetRotation.y) / this.rotationSnap) * this.rotationSnap);
-          quaternionZ.setFromAxisAngle(unitZ, Math.round( (rotation.z - offsetRotation.z) / this.rotationSnap) * this.rotationSnap);
-        } else {
-          quaternionX.setFromAxisAngle(unitX, rotation.x - offsetRotation.x);
-          quaternionY.setFromAxisAngle(unitY, rotation.y - offsetRotation.y);
-          quaternionZ.setFromAxisAngle(unitZ, rotation.z - offsetRotation.z);
+          this.root.position.copy(oldPosition);
+          this.root.position.add(point);
         }
 
-        if (this.axis === "X") quaternionXYZ.multiplyQuaternions(quaternionXYZ, quaternionX);
-        if (this.axis === "Y") quaternionXYZ.multiplyQuaternions(quaternionXYZ, quaternionY);
-        if (this.axis === "Z") quaternionXYZ.multiplyQuaternions(quaternionXYZ, quaternionZ);
+        if (this.space === "world" || this.axis.search("XYZ") !== - 1) {
+          if (this.axis.search("X") === - 1) point.x = 0;
+          if (this.axis.search("Y") === - 1) point.y = 0;
+          if (this.axis.search("Z") === - 1) point.z = 0;
 
-        this.root.quaternion.copy(quaternionXYZ);
+          point.applyMatrix4(tempMatrix.getInverse(parentRotationMatrix));
 
-      } else if (this.space === "world") {
-        rotation.set(Math.atan2(point.z, point.y), Math.atan2(point.x, point.z), Math.atan2(point.y, point.x));
-        offsetRotation.set(Math.atan2(tempVector.z, tempVector.y), Math.atan2(tempVector.x, tempVector.z), Math.atan2(tempVector.y, tempVector.x));
-
-        tempQuaternion.setFromRotationMatrix(tempMatrix.getInverse(parentRotationMatrix));
-
-        if (this.rotationSnap !== null) {
-          quaternionX.setFromAxisAngle(unitX, Math.round( (rotation.x - offsetRotation.x) / this.rotationSnap) * this.rotationSnap);
-          quaternionY.setFromAxisAngle(unitY, Math.round( (rotation.y - offsetRotation.y) / this.rotationSnap) * this.rotationSnap);
-          quaternionZ.setFromAxisAngle(unitZ, Math.round( (rotation.z - offsetRotation.z) / this.rotationSnap) * this.rotationSnap);
-        } else {
-          quaternionX.setFromAxisAngle(unitX, rotation.x - offsetRotation.x);
-          quaternionY.setFromAxisAngle(unitY, rotation.y - offsetRotation.y);
-          quaternionZ.setFromAxisAngle(unitZ, rotation.z - offsetRotation.z);
+          this.root.position.copy(oldPosition);
+          this.root.position.add(point);
         }
 
-        quaternionXYZ.setFromRotationMatrix(worldRotationMatrix);
+        if (this.translationSnap !== null) {
+          if (this.space === "local") this.root.position.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
 
-        if (this.axis === "X") tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionX);
-        if (this.axis === "Y") tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionY);
-        if (this.axis === "Z") tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionZ);
+          if (this.axis.search("X") !== - 1) this.root.position.x = Math.round(this.root.position.x / this.translationSnap) * this.translationSnap;
+          if (this.axis.search("Y") !== - 1) this.root.position.y = Math.round(this.root.position.y / this.translationSnap) * this.translationSnap;
+          if (this.axis.search("Z") !== - 1) this.root.position.z = Math.round(this.root.position.z / this.translationSnap) * this.translationSnap;
 
-        tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionXYZ);
+          if (this.space === "local") this.root.position.applyMatrix4(worldRotationMatrix);
+        }
+      } break;
 
-        this.root.quaternion.copy(tempQuaternion);
-      }
+      case "scale": {
+        point.sub(offset);
+        point.multiply(parentScale);
+
+        if (this.axis === "XYZ") {
+          const scale = 1 + ( (point.y) / Math.max(oldScale.x, oldScale.y, oldScale.z));
+
+          this.root.scale.x = oldScale.x * scale;
+          this.root.scale.y = oldScale.y * scale;
+          this.root.scale.z = oldScale.z * scale;
+        } else {
+          point.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
+
+          if (this.axis === "X") this.root.scale.x = oldScale.x * (1 + point.x / oldScale.x);
+          if (this.axis === "Y") this.root.scale.y = oldScale.y * (1 + point.y / oldScale.y);
+          if (this.axis === "Z") this.root.scale.z = oldScale.z * (1 + point.z / oldScale.z);
+        }
+      } break;
+
+      case "resize": {
+        point.sub(offset);
+        point.multiply(parentScale);
+
+        const multiplier = 16;
+
+        if (this.axis === "XYZ") {
+          const scale = 1 + ( (point.y) / Math.max(oldScale.x, oldScale.y, oldScale.z) * multiplier);
+
+          this.root.scale.x = oldScale.x * scale;
+          this.root.scale.y = oldScale.y * scale;
+          this.root.scale.z = oldScale.z * scale;
+        } else {
+          point.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
+
+          if (this.axis === "X") this.root.scale.x = oldScale.x * (1 + point.x / oldScale.x * multiplier);
+          if (this.axis === "Y") this.root.scale.y = oldScale.y * (1 + point.y / oldScale.y * multiplier);
+          if (this.axis === "Z") this.root.scale.z = oldScale.z * (1 + point.z / oldScale.z * multiplier);
+        }
+
+        this.root.scale.x = Math.round(Math.max(1, this.root.scale.x));
+        this.root.scale.y = Math.round(Math.max(1, this.root.scale.y));
+        this.root.scale.z = Math.round(Math.max(1, this.root.scale.z));
+      } break;
+
+      case "rotate": {
+        point.sub(worldPosition);
+        point.multiply(parentScale);
+        tempVector.copy(offset).sub(worldPosition);
+        tempVector.multiply(parentScale);
+
+        if (this.axis === "E") {
+          point.applyMatrix4(tempMatrix.getInverse(lookAtMatrix));
+          tempVector.applyMatrix4(tempMatrix.getInverse(lookAtMatrix));
+
+          rotation.set(Math.atan2(point.z, point.y), Math.atan2(point.x, point.z), Math.atan2(point.y, point.x));
+          offsetRotation.set(Math.atan2(tempVector.z, tempVector.y), Math.atan2(tempVector.x, tempVector.z), Math.atan2(tempVector.y, tempVector.x));
+
+          tempQuaternion.setFromRotationMatrix(tempMatrix.getInverse(parentRotationMatrix));
+
+          quaternionE.setFromAxisAngle(eye, rotation.z - offsetRotation.z);
+          quaternionXYZ.setFromRotationMatrix(worldRotationMatrix);
+
+          tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionE);
+          tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionXYZ);
+
+          this.root.quaternion.copy(tempQuaternion);
+
+        } else if (this.axis === "XYZE") {
+          quaternionE.setFromEuler(point.clone().cross(tempVector).normalize() as any); // rotation axis
+
+          tempQuaternion.setFromRotationMatrix(tempMatrix.getInverse(parentRotationMatrix));
+          quaternionX.setFromAxisAngle(quaternionE as any, - point.clone().angleTo(tempVector));
+          quaternionXYZ.setFromRotationMatrix(worldRotationMatrix);
+
+          tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionX);
+          tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionXYZ);
+
+          this.root.quaternion.copy(tempQuaternion);
+
+        } else if (this.space === "local") {
+          point.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
+
+          tempVector.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
+
+          rotation.set(Math.atan2(point.z, point.y), Math.atan2(point.x, point.z), Math.atan2(point.y, point.x));
+          offsetRotation.set(Math.atan2(tempVector.z, tempVector.y), Math.atan2(tempVector.x, tempVector.z), Math.atan2(tempVector.y, tempVector.x));
+
+          quaternionXYZ.setFromRotationMatrix(oldRotationMatrix);
+
+          if (this.rotationSnap !== null) {
+            quaternionX.setFromAxisAngle(unitX, Math.round( (rotation.x - offsetRotation.x) / this.rotationSnap) * this.rotationSnap);
+            quaternionY.setFromAxisAngle(unitY, Math.round( (rotation.y - offsetRotation.y) / this.rotationSnap) * this.rotationSnap);
+            quaternionZ.setFromAxisAngle(unitZ, Math.round( (rotation.z - offsetRotation.z) / this.rotationSnap) * this.rotationSnap);
+          } else {
+            quaternionX.setFromAxisAngle(unitX, rotation.x - offsetRotation.x);
+            quaternionY.setFromAxisAngle(unitY, rotation.y - offsetRotation.y);
+            quaternionZ.setFromAxisAngle(unitZ, rotation.z - offsetRotation.z);
+          }
+
+          if (this.axis === "X") quaternionXYZ.multiplyQuaternions(quaternionXYZ, quaternionX);
+          if (this.axis === "Y") quaternionXYZ.multiplyQuaternions(quaternionXYZ, quaternionY);
+          if (this.axis === "Z") quaternionXYZ.multiplyQuaternions(quaternionXYZ, quaternionZ);
+
+          this.root.quaternion.copy(quaternionXYZ);
+
+        } else if (this.space === "world") {
+          rotation.set(Math.atan2(point.z, point.y), Math.atan2(point.x, point.z), Math.atan2(point.y, point.x));
+          offsetRotation.set(Math.atan2(tempVector.z, tempVector.y), Math.atan2(tempVector.x, tempVector.z), Math.atan2(tempVector.y, tempVector.x));
+
+          tempQuaternion.setFromRotationMatrix(tempMatrix.getInverse(parentRotationMatrix));
+
+          if (this.rotationSnap !== null) {
+            quaternionX.setFromAxisAngle(unitX, Math.round( (rotation.x - offsetRotation.x) / this.rotationSnap) * this.rotationSnap);
+            quaternionY.setFromAxisAngle(unitY, Math.round( (rotation.y - offsetRotation.y) / this.rotationSnap) * this.rotationSnap);
+            quaternionZ.setFromAxisAngle(unitZ, Math.round( (rotation.z - offsetRotation.z) / this.rotationSnap) * this.rotationSnap);
+          } else {
+            quaternionX.setFromAxisAngle(unitX, rotation.x - offsetRotation.x);
+            quaternionY.setFromAxisAngle(unitY, rotation.y - offsetRotation.y);
+            quaternionZ.setFromAxisAngle(unitZ, rotation.z - offsetRotation.z);
+          }
+
+          quaternionXYZ.setFromRotationMatrix(worldRotationMatrix);
+
+          if (this.axis === "X") tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionX);
+          if (this.axis === "Y") tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionY);
+          if (this.axis === "Z") tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionZ);
+
+          tempQuaternion.multiplyQuaternions(tempQuaternion, quaternionXYZ);
+
+          this.root.quaternion.copy(tempQuaternion);
+        }
+      } break;
     }
 
     this.update(false);
