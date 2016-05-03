@@ -228,19 +228,29 @@ export class TransformGizmoTranslate extends TransformGizmo {
 
 export class TransformGizmoRotate extends TransformGizmo {
   initGizmos() {
+    const radius = 0.7;
+    const thickness = 0.02;
+    const globalRadius = radius * 1.2;
+
     // Handles
-    const halfRingGeometry = new THREE.RingGeometry(0.98, 1.02, 32, 8, 0);
-    this.setupGizmo("X", new THREE.Mesh(halfRingGeometry, new GizmoLineMaterial({ color: 0xff0000, side: THREE.DoubleSide })), this.handlesRoot, null, [ 0, -Math.PI / 2, -Math.PI / 2 ]);
-    this.setupGizmo("Y", new THREE.Mesh(halfRingGeometry, new GizmoLineMaterial({ color: 0x00ff00, side: THREE.DoubleSide })), this.handlesRoot, null, [ Math.PI / 2, 0, 0 ]);
-    this.setupGizmo("Z", new THREE.Mesh(halfRingGeometry, new GizmoLineMaterial({ color: 0x0000ff, side: THREE.DoubleSide })), this.handlesRoot, null, [ 0, 0, -Math.PI / 2 ]);
-    this.setupGizmo("E", new THREE.Mesh(new THREE.RingGeometry(1.23, 1.27, 32, 8), new GizmoLineMaterial({ color: 0xcccc00, side: THREE.DoubleSide })), this.handlesRoot);
+    const ringGeometry = new THREE.RingGeometry(radius - thickness, radius + thickness, 32, 8, 0);
+    this.setupGizmo("X", new THREE.Mesh(ringGeometry, new GizmoLineMaterial({ color: 0xff0000, side: THREE.DoubleSide })), this.handlesRoot, null, [ 0, -Math.PI / 2, -Math.PI / 2 ]);
+    this.setupGizmo("Y", new THREE.Mesh(ringGeometry, new GizmoLineMaterial({ color: 0x00ff00, side: THREE.DoubleSide })), this.handlesRoot, null, [ Math.PI / 2, 0, 0 ]);
+    this.setupGizmo("Z", new THREE.Mesh(ringGeometry, new GizmoLineMaterial({ color: 0x0000ff, side: THREE.DoubleSide })), this.handlesRoot, null, [ 0, 0, -Math.PI / 2 ]);
+
+    const globalRingGeometry = new THREE.RingGeometry(globalRadius - thickness, globalRadius + thickness, 32, 8);
+    this.setupGizmo("E", new THREE.Mesh(globalRingGeometry, new GizmoLineMaterial({ color: 0xffffff, opacity: 0.8, side: THREE.DoubleSide })), this.handlesRoot);
 
     // Pickers
-    const torusGeometry = new THREE.TorusGeometry(1, 0.12, 4, 12);
+    const pickerThickness = 0.12;
+
+    const torusGeometry = new THREE.TorusGeometry(radius, pickerThickness, 4, 12);
     this.setupGizmo("X", new THREE.Mesh(torusGeometry, pickerMaterial), this.pickersRoot, null, [ 0, - Math.PI / 2, - Math.PI / 2 ]);
     this.setupGizmo("Y", new THREE.Mesh(torusGeometry, pickerMaterial), this.pickersRoot, null, [ Math.PI / 2, 0, 0 ]);
     this.setupGizmo("Z", new THREE.Mesh(torusGeometry, pickerMaterial), this.pickersRoot, null, [ 0, 0, - Math.PI / 2 ]);
-    this.setupGizmo("E", new THREE.Mesh(new THREE.TorusGeometry(1.25, 0.12, 2, 24), pickerMaterial), this.pickersRoot);
+
+    const globalTorusGeometry = new THREE.TorusGeometry(globalRadius, pickerThickness, 2, 24);
+    this.setupGizmo("E", new THREE.Mesh(globalTorusGeometry, pickerMaterial), this.pickersRoot);
   }
 
   setActivePlane(axis: string) {
