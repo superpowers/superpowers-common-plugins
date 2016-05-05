@@ -163,13 +163,20 @@ export default class TransformControls extends THREE.Object3D {
     if (copyTarget) {
       this.root.position.copy(this.target.getWorldPosition());
       this.root.quaternion.copy(this.target.getWorldQuaternion());
+
+      const geometry = (this.target as THREE.Mesh).geometry as THREE.BoxGeometry;
+      const width = (geometry != null && geometry.parameters.width != null) ? geometry.parameters.width : 1;
+      const height = (geometry != null && geometry.parameters.height != null) ? geometry.parameters.height : 1;
+      const depth = (geometry != null && geometry.parameters.depth != null) ? geometry.parameters.depth : 1;
+
       if (this.mode === "resize") {
-        const geometry = (this.target as THREE.Mesh).geometry as THREE.BoxGeometry;
-        this.root.scale.x = geometry.parameters.width;
-        this.root.scale.y = geometry.parameters.height;
-        this.root.scale.z = geometry.parameters.depth != null ? geometry.parameters.depth : 1;
+        this.root.scale.x = Math.abs(width);
+        this.root.scale.y = Math.abs(height);
+        this.root.scale.z = Math.abs(depth);
       } else {
-        this.root.scale.copy(this.target.scale);
+        this.root.scale.x = (width < 0 ? -1 : 1) * this.target.scale.x;
+        this.root.scale.y = (height < 0 ? -1 : 1) * this.target.scale.y;
+        this.root.scale.z = (depth < 0 ? -1 : 1) * this.target.scale.z;
       }
     }
     this.root.updateMatrixWorld(false);
