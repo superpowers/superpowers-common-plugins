@@ -145,9 +145,9 @@ export default class Camera3DControls {
     this.isPanning = false;
   };
 
-  resetOrbitingPivot(position: THREE.Vector3) {
+  resetOrbitPivot(position: THREE.Vector3) {
     this.targetOrbitPivot.copy(position);
-    this.targetOrbitRadius = initialOrbitRadius;
+    this.targetOrbitRadius = Math.max(this.targetOrbitRadius, initialOrbitRadius);
     return this;
   }
 
