@@ -200,7 +200,7 @@ export default class TransformControls extends THREE.Object3D {
     camPosition.setFromMatrixPosition(this.camera.matrixWorld);
     camRotation.setFromRotationMatrix(tempMatrix.extractRotation(this.camera.matrixWorld));
 
-    const scale = worldPosition.distanceTo(camPosition) / 6 * this.size;
+    const scale = worldPosition.distanceTo(camPosition) / 8 * this.size;
     this.position.copy(worldPosition);
     this.scale.set(scale, scale, scale);
 
