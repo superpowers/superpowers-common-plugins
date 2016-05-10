@@ -7,6 +7,7 @@ const upVector = new THREE.Vector3(0, 1, 0);
 const moveSpeed = 0.3;
 const lerpFactor = 0.3;
 const minOrbitRadius = 0.5;
+const maxOrbitRadius = 500;
 const initialOrbitRadius = 10;
 
 const panningSpeed = 0.005;
@@ -97,7 +98,7 @@ export default class Camera3DControls {
     else if (event.deltaY < 0) this.targetOrbitRadius /= -multiplier;
     else return;
 
-    this.targetOrbitRadius = Math.max(this.targetOrbitRadius, minOrbitRadius);
+    this.targetOrbitRadius = Math.min(Math.max(this.targetOrbitRadius, minOrbitRadius), maxOrbitRadius);
   };
 
   private onKeyDown = (event: KeyboardEvent) => {
