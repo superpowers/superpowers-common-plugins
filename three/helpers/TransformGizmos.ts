@@ -1,3 +1,5 @@
+const lineRadius = 0.015;
+
 class GizmoMaterial extends THREE.MeshBasicMaterial {
   private oldColor: THREE.Color;
   private oldOpacity: number;
@@ -128,7 +130,7 @@ export abstract class TransformGizmo extends THREE.Object3D {
 export class TransformGizmoTranslate extends TransformGizmo {
   initGizmos() {
     // Handles
-    const geometry = new THREE.CylinderGeometry(0, 0.05, 0.2, 12, 1, false);
+    const geometry = new THREE.CylinderGeometry(0, 0.06, 0.2, 12, 1, false);
     const mesh = new THREE.Mesh(geometry);
     mesh.position.y = 0.5;
     mesh.updateMatrix();
@@ -136,7 +138,7 @@ export class TransformGizmoTranslate extends TransformGizmo {
     const arrowGeometry = new THREE.Geometry();
     arrowGeometry.merge(geometry, mesh.matrix);
 
-    const lineGeometry = new THREE.CylinderGeometry(0.02, 0.02, 1);
+    const lineGeometry = new THREE.CylinderGeometry(lineRadius, lineRadius, 1);
 
     this.setupGizmo("X", new THREE.Mesh(arrowGeometry, new GizmoMaterial({ color: 0xff0000 })), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ]);
     this.setupGizmo("X", new THREE.Mesh(lineGeometry, new GizmoMaterial({ color: 0xff0000 })), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ]);
@@ -198,7 +200,7 @@ export class TransformGizmoTranslate extends TransformGizmo {
 export class TransformGizmoRotate extends TransformGizmo {
   initGizmos() {
     const radius = 0.7;
-    const thickness = 0.02;
+    const thickness = 0.03;
     const globalRadius = radius * 1.2;
 
     // Handles
@@ -241,7 +243,7 @@ export class TransformGizmoScale extends TransformGizmo {
     const arrowGeometry = new THREE.Geometry();
     arrowGeometry.merge(geometry, mesh.matrix);
 
-    const lineGeometry = new THREE.CylinderGeometry(0.02, 0.02, 1);
+    const lineGeometry = new THREE.CylinderGeometry(lineRadius, lineRadius, 1);
 
     this.setupGizmo("X", new THREE.Mesh(arrowGeometry, new GizmoMaterial({ color: 0xff0000 })), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ]);
     this.setupGizmo("X", new THREE.Mesh(lineGeometry, new GizmoMaterial({ color: 0xff0000 })), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ]);
@@ -285,7 +287,7 @@ export class TransformGizmoScale extends TransformGizmo {
 export class TransformGizmoResize extends TransformGizmo {
   initGizmos() {
     // Handles
-    const geometry = new THREE.BoxGeometry(0.25, 0.04, 0.25);
+    const geometry = new THREE.BoxGeometry(0.2, 0.03, 0.2);
     const mesh = new THREE.Mesh(geometry);
     mesh.position.y = 0.5;
     mesh.updateMatrix();
@@ -293,7 +295,7 @@ export class TransformGizmoResize extends TransformGizmo {
     const arrowGeometry = new THREE.Geometry();
     arrowGeometry.merge(geometry, mesh.matrix);
 
-    const lineGeometry = new THREE.CylinderGeometry(0.02, 0.02, 1);
+    const lineGeometry = new THREE.CylinderGeometry(lineRadius, lineRadius, 1);
 
     this.setupGizmo("X", new THREE.Mesh(arrowGeometry, new GizmoMaterial({ color: 0xff0000 })), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ]);
     this.setupGizmo("X", new THREE.Mesh(lineGeometry, new GizmoMaterial({ color: 0xff0000 })), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ]);
