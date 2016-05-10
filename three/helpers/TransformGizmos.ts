@@ -7,7 +7,7 @@ class GizmoMaterial extends THREE.MeshBasicMaterial {
   constructor(parameters: THREE.MeshBasicMaterialParameters) {
     super(parameters);
 
-    this.side = THREE.FrontSide;
+    this.transparent = true;
 
     this.setValues(parameters);
 
