@@ -23,6 +23,7 @@ declare namespace SupTHREE {
     constructor(scene: THREE.Scene, threeCamera: THREE.Camera, canvas: HTMLCanvasElement);
     dispose(): void;
 
+    setVisible(visible: boolean): this;
     attach(object: THREE.Object3D): this;
     detach(): this;
 

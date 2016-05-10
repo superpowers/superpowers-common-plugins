@@ -50,6 +50,7 @@ export default class TransformControls extends THREE.Object3D {
   root = new THREE.Object3D();
 
   private target: THREE.Object3D;
+  private externVisible = false;
   private size = 1;
   private axis: string;
   private mode: "translate"|"rotate"|"scale"|"resize" = "translate";
@@ -112,9 +113,15 @@ export default class TransformControls extends THREE.Object3D {
     this.domElement.removeEventListener("touchleave", this.onPointerUp);
   }
 
+  setVisible(visible: boolean) {
+    this.externVisible = visible;
+    this.visible = this.externVisible && this.target != null;
+    return this;
+  }
+
   attach(object: THREE.Object3D) {
     this.target = object;
-    this.visible = true;
+    this.visible = this.externVisible;
     this.update();
     return this;
   };
