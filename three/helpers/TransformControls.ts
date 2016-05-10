@@ -50,7 +50,7 @@ export default class TransformControls extends THREE.Object3D {
   root = new THREE.Object3D();
 
   private target: THREE.Object3D;
-  private externVisible = false;
+  private externVisible = true;
   private size = 1;
   private axis: string;
   private mode: "translate"|"rotate"|"scale"|"resize" = "translate";
