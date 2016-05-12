@@ -317,13 +317,13 @@ export default class TransformControls extends THREE.Object3D {
         }
 
         if (this.translationSnap !== null) {
-          if (this.space === "local") this.root.position.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
+          if (this.space === "local") this.root.position.sub(worldPosition).applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
 
           if (this.axis.search("X") !== -1) this.root.position.x = Math.round(this.root.position.x / this.translationSnap) * this.translationSnap;
           if (this.axis.search("Y") !== -1) this.root.position.y = Math.round(this.root.position.y / this.translationSnap) * this.translationSnap;
           if (this.axis.search("Z") !== -1) this.root.position.z = Math.round(this.root.position.z / this.translationSnap) * this.translationSnap;
 
-          if (this.space === "local") this.root.position.applyMatrix4(worldRotationMatrix);
+          if (this.space === "local") this.root.position.applyMatrix4(worldRotationMatrix).add(worldPosition);
         }
       } break;
 
