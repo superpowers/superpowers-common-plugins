@@ -295,9 +295,9 @@ export default class TransformControls extends THREE.Object3D {
         if (this.space === "local") {
           point.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
 
-          if (this.axis.search("X") === - 1) point.x = 0;
-          if (this.axis.search("Y") === - 1) point.y = 0;
-          if (this.axis.search("Z") === - 1) point.z = 0;
+          if (this.axis.search("X") === -1) point.x = 0;
+          if (this.axis.search("Y") === -1) point.y = 0;
+          if (this.axis.search("Z") === -1) point.z = 0;
 
           point.applyMatrix4(oldRotationMatrix);
 
@@ -305,10 +305,10 @@ export default class TransformControls extends THREE.Object3D {
           this.root.position.add(point);
         }
 
-        if (this.space === "world" || this.axis.search("XYZ") !== - 1) {
-          if (this.axis.search("X") === - 1) point.x = 0;
-          if (this.axis.search("Y") === - 1) point.y = 0;
-          if (this.axis.search("Z") === - 1) point.z = 0;
+        if (this.space === "world" || this.axis.search("XYZ") !== -1) {
+          if (this.axis.search("X") === -1) point.x = 0;
+          if (this.axis.search("Y") === -1) point.y = 0;
+          if (this.axis.search("Z") === -1) point.z = 0;
 
           point.applyMatrix4(tempMatrix.getInverse(parentRotationMatrix));
 
@@ -319,9 +319,9 @@ export default class TransformControls extends THREE.Object3D {
         if (this.translationSnap !== null) {
           if (this.space === "local") this.root.position.applyMatrix4(tempMatrix.getInverse(worldRotationMatrix));
 
-          if (this.axis.search("X") !== - 1) this.root.position.x = Math.round(this.root.position.x / this.translationSnap) * this.translationSnap;
-          if (this.axis.search("Y") !== - 1) this.root.position.y = Math.round(this.root.position.y / this.translationSnap) * this.translationSnap;
-          if (this.axis.search("Z") !== - 1) this.root.position.z = Math.round(this.root.position.z / this.translationSnap) * this.translationSnap;
+          if (this.axis.search("X") !== -1) this.root.position.x = Math.round(this.root.position.x / this.translationSnap) * this.translationSnap;
+          if (this.axis.search("Y") !== -1) this.root.position.y = Math.round(this.root.position.y / this.translationSnap) * this.translationSnap;
+          if (this.axis.search("Z") !== -1) this.root.position.z = Math.round(this.root.position.z / this.translationSnap) * this.translationSnap;
 
           if (this.space === "local") this.root.position.applyMatrix4(worldRotationMatrix);
         }
