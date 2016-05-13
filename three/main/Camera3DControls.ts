@@ -32,8 +32,10 @@ export default class Camera3DControls {
   private targetPhi: number;
 
   private moveVector = new THREE.Vector3();
+  private pivotMarker: THREE.LineSegments;
+  private pivotMarkerOpacity = 0;
 
-  constructor(private camera: Camera, private canvas: HTMLCanvasElement) {
+  constructor(private root: THREE.Object3D, private camera: Camera, private canvas: HTMLCanvasElement) {
     this.orbitPivot = new THREE.Vector3(0, 0, -this.orbitRadius).applyQuaternion(this.camera.threeCamera.quaternion).add(this.camera.threeCamera.position);
     this.targetOrbitPivot = this.orbitPivot.clone();
 
@@ -44,6 +46,17 @@ export default class Camera3DControls {
     this.targetTheta = this.theta;
     this.phi = Math.atan2(Math.sqrt(tmpVector3.x * tmpVector3.x + tmpVector3.z * tmpVector3.z), tmpVector3.y);
     this.targetPhi = this.phi;
+
+    const pivotGeometry = new THREE.Geometry();
+    pivotGeometry.vertices.push(
+      new THREE.Vector3( -0.5, 0, 0 ), new THREE.Vector3( 0.5, 0, 0 ),
+      new THREE.Vector3( 0, -0.5, 0 ), new THREE.Vector3( 0, 0.5, 0 ),
+      new THREE.Vector3( 0, 0, -0.5 ), new THREE.Vector3( 0, 0, 0.5 )
+    );
+
+    this.pivotMarker = new THREE.LineSegments(pivotGeometry, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: this.pivotMarkerOpacity, transparent: true }));
+    this.pivotMarker.channels.set(1);
+    root.add(this.pivotMarker);
 
     canvas.addEventListener("mousedown", this.onMouseDown);
     canvas.addEventListener("mousemove", this.onMouseMove);
@@ -174,5 +187,16 @@ export default class Camera3DControls {
     this.camera.threeCamera.position.copy(this.orbitPivot).add(tmpVector3);
     this.camera.threeCamera.lookAt(this.orbitPivot);
     this.camera.threeCamera.updateMatrixWorld(false);
+
+    // Update marker
+    if (this.orbitPivot.distanceTo(this.targetOrbitPivot) > 0.1 ||
+    Math.abs(this.orbitRadius - this.targetOrbitRadius) > 0.1 || this.isOrbiting || this.isPanning) {
+      this.pivotMarker.material.opacity = 0.5;
+    } else {
+      this.pivotMarker.material.opacity *= 1 - lerpFactor;
+    }
+
+    this.pivotMarker.position.copy(this.orbitPivot);
+    this.pivotMarker.updateMatrixWorld(false);
   }
 }
