@@ -206,7 +206,7 @@ export default class TransformControls extends THREE.Object3D {
 
     eye.copy(camPosition).sub(worldPosition).normalize();
 
-    if (this.space === "local" || this.mode === "scale") this.gizmo[this.mode].update(worldRotation, eye);
+    if (this.space === "local" || this.mode === "scale" || this.mode === "resize") this.gizmo[this.mode].update(worldRotation, eye);
     else if (this.space === "world") this.gizmo[this.mode].update(new THREE.Euler(), eye);
 
     this.gizmo[this.mode].highlight(this.axis);
