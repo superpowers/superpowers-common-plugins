@@ -56,7 +56,13 @@ function openDocumentation(name: string) {
 }
 
 function setupDocs() {
-  const sortedNames = Object.keys(SupClient.getPlugins<SupClient.DocumentationPlugin>("documentation"));
+  const docs = SupClient.getPlugins<SupClient.DocumentationPlugin>("documentation");
+  if (docs == null) {
+    mainElt.textContent = "This system doesn't have any documentation included.";
+    return;
+  }
+
+  const sortedNames = Object.keys(docs);
   sortedNames.sort((a, b) => { return (a.toLowerCase() < b.toLowerCase()) ? -1 : 1; });
 
   const languageCode = SupClient.cookies.get("supLanguage");
