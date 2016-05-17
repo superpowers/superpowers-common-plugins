@@ -1,41 +1,36 @@
 export default class SelectionBoxRenderer {
-  private line: THREE.LineSegments;
-  private geometry: THREE.Geometry;
+  private mesh: THREE.Mesh;
   private target: THREE.Object3D;
 
   constructor(root: THREE.Object3D) {
-    this.geometry = new THREE.Geometry();
-    for (let i = 0; i < 24; i++) this.geometry.vertices.push(new THREE.Vector3(0, 0, 0));
-    this.line = new THREE.LineSegments(this.geometry, new THREE.LineBasicMaterial({ color: 0x00ffff, opacity: 1, depthTest: false, depthWrite: false, transparent: true }));
-    this.line.channels.set(1);
-    root.add(this.line);
-    this.line.updateMatrixWorld(false);
+    this.mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: 0x00ffff, side: THREE.BackSide }));
+    root.add(this.mesh);
   }
 
   setTarget(target: THREE.Object3D) {
     this.target = target;
-    this.line.visible = true;
+    this.mesh.visible = true;
     this.move();
     this.resize();
     return this;
   }
 
   move() {
-    this.line.position.copy(this.target.getWorldPosition());
-    this.line.quaternion.copy(this.target.getWorldQuaternion());
-    this.line.updateMatrixWorld(false);
+    this.mesh.position.copy(this.target.getWorldPosition());
+    this.mesh.quaternion.copy(this.target.getWorldQuaternion());
+    this.mesh.updateMatrixWorld(false);
     return this;
   }
 
   resize() {
     const vec = new THREE.Vector3();
     const box = new THREE.Box3();
-    const inverseTargetMatrixWorld = new THREE.Matrix4().compose(this.target.getWorldPosition(), this.target.getWorldQuaternion(), <THREE.Vector3>{ x: 1, y: 1, z: 1 });
+    const inverseTargetMatrixWorld = new THREE.Matrix4().compose(this.target.getWorldPosition(), this.target.getWorldQuaternion(), { x: 1, y: 1, z: 1 } as THREE.Vector3);
 
     inverseTargetMatrixWorld.getInverse(inverseTargetMatrixWorld);
 
-    this.target.traverse((node) => {
-      const geometry: THREE.Geometry|THREE.BufferGeometry = (node as any).geometry;
+    this.target.traverse((node: THREE.Mesh) => {
+      const geometry = node.geometry;
 
       if (geometry != null) {
         node.updateMatrixWorld(false);
@@ -60,45 +55,15 @@ export default class SelectionBoxRenderer {
       }
     });
 
-    const min = box.min;
-    const max = box.max;
-
-    // Front
-    this.geometry.vertices[0].set(max.x, min.y, min.z);
-    this.geometry.vertices[1].set(min.x, min.y, min.z);
-    this.geometry.vertices[2].set(min.x, min.y, min.z);
-    this.geometry.vertices[3].set(min.x, max.y, min.z);
-    this.geometry.vertices[4].set(min.x, max.y, min.z);
-    this.geometry.vertices[5].set(max.x, max.y, min.z);
-    this.geometry.vertices[6].set(max.x, max.y, min.z);
-    this.geometry.vertices[7].set(max.x, min.y, min.z);
-
-    // Back
-    this.geometry.vertices[8].set( min.x, max.y, max.z);
-    this.geometry.vertices[9].set( max.x, max.y, max.z);
-    this.geometry.vertices[10].set(max.x, max.y, max.z);
-    this.geometry.vertices[11].set(max.x, min.y, max.z);
-    this.geometry.vertices[12].set(max.x, min.y, max.z);
-    this.geometry.vertices[13].set(min.x, min.y, max.z);
-    this.geometry.vertices[14].set(min.x, min.y, max.z);
-    this.geometry.vertices[15].set(min.x, max.y, max.z);
-
-    // Lines
-    this.geometry.vertices[16].set(max.x, min.y, min.z);
-    this.geometry.vertices[17].set(max.x, min.y, max.z);
-    this.geometry.vertices[18].set(max.x, max.y, min.z);
-    this.geometry.vertices[19].set(max.x, max.y, max.z);
-    this.geometry.vertices[20].set(min.x, max.y, min.z);
-    this.geometry.vertices[21].set(min.x, max.y, max.z);
-    this.geometry.vertices[22].set(min.x, min.y, min.z);
-    this.geometry.vertices[23].set(min.x, min.y, max.z);
-
-    this.geometry.verticesNeedUpdate = true;
+    const size = box.size();
+    const thickness = 0.15;
+    this.mesh.scale.copy(size).add(new THREE.Vector3(thickness, thickness, thickness));
+    this.mesh.updateMatrixWorld(false);
     return this;
   }
 
   hide() {
-    this.line.visible = false;
+    this.mesh.visible = false;
     return this;
   }
 }
