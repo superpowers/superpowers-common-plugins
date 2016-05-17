@@ -62,18 +62,15 @@ function setupDocs() {
     return;
   }
 
-  const sortedNames = Object.keys(docs);
-  sortedNames.sort((a, b) => { return (a.toLowerCase() < b.toLowerCase()) ? -1 : 1; });
-
   const languageCode = SupClient.cookies.get("supLanguage");
+  const liEltsByTranslatedName: { [translatedName: string]: HTMLLIElement } = {};
 
-  sortedNames.forEach((name) => {
+  async.each(Object.keys(docs), (name, cb) => {
     const liElt = document.createElement("li");
     const anchorElt = document.createElement("a");
     anchorElt.dataset["name"] = name;
     anchorElt.href = `#${name}`;
     liElt.appendChild(anchorElt);
-    navListElt.appendChild(liElt);
 
     const articleElt = document.createElement("article");
     articleElt.id = `documentation-${name}`;
@@ -81,12 +78,18 @@ function setupDocs() {
 
     function onDocumentationLoaded(content: string) {
       articleElt.innerHTML = marked(content);
-      anchorElt.textContent = articleElt.firstElementChild.textContent;
+
+      const translatedName = articleElt.firstElementChild.textContent;
+      anchorElt.textContent = translatedName;
+
+      if (docs[name].content.isFirstSection) navListElt.appendChild(liElt);
+      else liEltsByTranslatedName[translatedName] = liElt;
 
       if (SupApp == null) {
         const linkElts = articleElt.querySelectorAll("a") as any as HTMLAnchorElement[];
         for (const linkElt of linkElts) linkElt.target = "_blank";
       }
+      cb(null);
     }
 
     const pluginPath = SupClient.getPlugins<SupClient.DocumentationPlugin>("documentation")[name].path;
@@ -99,15 +102,18 @@ function setupDocs() {
       }
       onDocumentationLoaded(data);
     });
-  });
+  }, () => {
+    const sortedNames = Object.keys(liEltsByTranslatedName).sort((a, b) => { return (a.toLowerCase() < b.toLowerCase()) ? -1 : 1; });
+    for (const name of sortedNames) navListElt.appendChild(liEltsByTranslatedName[name]);
 
-  navListElt.addEventListener("click", (event: any) => {
-    if (event.target.tagName !== "A") return;
-    openDocumentation(event.target.dataset["name"]);
-  });
+    navListElt.addEventListener("click", (event: any) => {
+      if (event.target.tagName !== "A") return;
+      openDocumentation(event.target.dataset["name"]);
+    });
 
-  (<HTMLAnchorElement>navListElt.querySelector("li a")).classList.add("active");
-  (<HTMLElement>mainElt.querySelector("article")).classList.add("active");
-  loaded = true;
-  if (initialSection != null) openDocumentation(initialSection);
+    (<HTMLAnchorElement>navListElt.querySelector("li a")).classList.add("active");
+    (<HTMLElement>mainElt.querySelector("article")).classList.add("active");
+    loaded = true;
+    if (initialSection != null) openDocumentation(initialSection);
+  });
 }
