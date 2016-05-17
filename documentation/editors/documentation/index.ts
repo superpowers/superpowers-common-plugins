@@ -40,13 +40,15 @@ function loadPlugins() {
 const navListElt = document.querySelector("nav ul");
 const mainElt =  document.querySelector("main");
 
-mainElt.addEventListener("click", (event) => {
-  const target = event.target as HTMLAnchorElement;
-  if (target.tagName !== "A") return;
+if (SupApp != null) {
+  mainElt.addEventListener("click", (event) => {
+    const target = event.target as HTMLAnchorElement;
+    if (target.tagName !== "A") return;
 
-  event.preventDefault();
-  SupApp.openLink(target.href);
-});
+    event.preventDefault();
+    SupApp.openLink(target.href);
+  });
+}
 
 function openDocumentation(name: string) {
   (navListElt.querySelector("li a.active") as HTMLAnchorElement).classList.remove("active");
