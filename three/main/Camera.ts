@@ -117,7 +117,7 @@ export default class Camera{
 
     for (const channel of channels) {
       renderer.clearDepth();
-      this.threeCamera.channels.set(channel);
+      this.threeCamera.layers.set(channel);
       renderer.render(scene, this.threeCamera);
     }
   }

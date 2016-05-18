@@ -10,7 +10,7 @@ export default class TransformMarker {
     );
 
     this.line = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.25, transparent: true }));
-    this.line.channels.set(1);
+    this.line.layers.set(1);
     root.add(this.line);
     this.line.updateMatrixWorld(false);
   }

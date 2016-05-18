@@ -82,7 +82,7 @@ export abstract class TransformGizmo extends THREE.Object3D {
 
     // Reset Transformations
     this.traverse((child) => {
-      child.channels.set(1);
+      child.layers.set(1);
 
       if (child instanceof THREE.Mesh) {
         child.updateMatrix();

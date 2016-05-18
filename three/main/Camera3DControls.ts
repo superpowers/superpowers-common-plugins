@@ -55,7 +55,7 @@ export default class Camera3DControls {
     );
 
     this.pivotMarker = new THREE.LineSegments(pivotGeometry, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: this.pivotMarkerOpacity, transparent: true }));
-    this.pivotMarker.channels.set(1);
+    this.pivotMarker.layers.set(1);
     root.add(this.pivotMarker);
 
     canvas.addEventListener("mousedown", this.onMouseDown);

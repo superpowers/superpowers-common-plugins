@@ -11,6 +11,6 @@
     "build": "gulp --gulpfile=../../../../../scripts/pluginGulpfile.js --cwd=. --silent && gulp --gulpfile=mainGulpfile.js"
   },
   "dependencies": {
-    "three": "^0.73.2"
+    "three": "^0.76.1"
   }
 }
