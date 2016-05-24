@@ -77,6 +77,11 @@ export default class Camera3DControls {
 
     } else if (event.button === 1 || (event.button === 0 && event.altKey)) {
       this.isOrbiting = true;
+      if ((<any>this.canvas).requestPointerLock) (<any>this.canvas).requestPointerLock();
+      else if ((<any>this.canvas).webkitRequestPointerLock) (<any>this.canvas).webkitRequestPointerLock();
+      else if ((<any>this.canvas).mozRequestPointerLock) (<any>this.canvas).mozRequestPointerLock();
+      else console.log("test");
+
       this.targetOrbitPivot = new THREE.Vector3(0, 0, -this.targetOrbitRadius).applyQuaternion(this.camera.threeCamera.quaternion).add(this.camera.threeCamera.position);
 
       tmpQuaternion.setFromUnitVectors(this.camera.threeCamera.up, upVector);
@@ -149,14 +154,28 @@ export default class Camera3DControls {
   };
 
   private onMouseUp = (event: MouseEvent) => {
-    if (event.button === 2) this.isPanning = false;
-    else if (event.button === 1 || event.button === 0) this.isOrbiting = false;
+    if (event.button === 2) {
+      this.isPanning = false;
+
+    } else if (event.button === 1 || event.button === 0) {
+      this.isOrbiting = false;
+      if ((<any>document).exitPointerLock) (<any>document).exitPointerLock();
+      else if ((<any>document).webkitExitPointerLock) (<any>document).webkitExitPointerLock();
+      else if ((<any>document).mozExitPointerLock) (<any>document).mozExitPointerLock();
+      else console.log("test 2");
+    }
   };
 
   private onBlur = (event: Event) => {
     this.moveVector.set(0, 0, 0);
-    this.isOrbiting = false;
     this.isPanning = false;
+
+    if (this.isOrbiting) {
+      this.isOrbiting = false;
+      if ((<any>document).exitPointerLock) (<any>document).exitPointerLock();
+      else if ((<any>document).webkitExitPointerLock) (<any>document).webkitExitPointerLock();
+      else if ((<any>document).mozExitPointerLock) (<any>document).mozExitPointerLock();
+    }
   };
 
   resetOrbitPivot(position: THREE.Vector3) {
