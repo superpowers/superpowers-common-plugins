@@ -9,13 +9,13 @@ declare module "operational-transform" {
   }
 
   class TextOperation {
-    userId: number;
+    userId: string;
     ops: TextOp[];
 
     baseLength: number;
     targetLength: number;
 
-    constructor(userId?: number);
+    constructor(userId?: string);
     serialize(): OperationData;
     deserialize(data: OperationData): void;
     retain(amount: number): void;
@@ -27,7 +27,7 @@ declare module "operational-transform" {
     equal(otherOperation: TextOperation): boolean;
     compose(otherOperation: TextOperation): TextOperation;
     transform(otherOperation: TextOperation): TextOperation[];
-    gotPriority(otherId: number): boolean;
+    gotPriority(otherId: string): boolean;
   }
 
   class TextOp {
@@ -39,6 +39,6 @@ declare module "operational-transform" {
 }
 
 interface OperationData {
-  userId: number;
+  userId: string;
   ops: Array<{type: string; attributes: any}>;
 }

@@ -25,7 +25,7 @@ class TextEditorWidget {
   editCallback: EditCallback;
   sendOperationCallback: SendOperationCallback;
 
-  clientId: number;
+  clientId: string;
   tmpCodeMirrorDoc = new CodeMirror.Doc("");
   texts: string[] = [];
 
@@ -40,7 +40,7 @@ class TextEditorWidget {
 
   useSoftTab = true;
 
-  constructor(projectClient: SupClient.ProjectClient, clientId: number, textArea: HTMLTextAreaElement, options: TextEditorWidgetOptions) {
+  constructor(projectClient: SupClient.ProjectClient, clientId: string, textArea: HTMLTextAreaElement, options: TextEditorWidgetOptions) {
     let extraKeys: { [name: string]: string|Function|boolean } = {
       "F9": () => { /* Disable line re-ordering */ },
       "Ctrl-T": false,
