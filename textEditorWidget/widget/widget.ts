@@ -1,4 +1,5 @@
 import TextEditorSettingsResource from "../data/TextEditorSettingsResource";
+import * as textEditorUserSettings from "../data/textEditorUserSettings";
 
 import * as OT from "operational-transform";
 
@@ -10,12 +11,15 @@ require("codemirror/addon/edit/closebrackets");
 require("codemirror/addon/comment/comment");
 require("codemirror/addon/hint/show-hint");
 require("codemirror/addon/selection/active-line");
-require("codemirror/keymap/sublime");
 require("codemirror/addon/fold/foldcode");
 require("codemirror/addon/fold/foldgutter");
 require("codemirror/addon/fold/brace-fold");
 require("codemirror/addon/fold/comment-fold");
 require("codemirror/addon/fold/indent-fold");
+
+require("codemirror/keymap/sublime");
+require("codemirror/keymap/emacs");
+require("codemirror/keymap/vim");
 /* tslint:enable */
 
 class TextEditorWidget {
@@ -72,7 +76,8 @@ class TextEditorWidget {
       lineNumbers: true,
       gutters: ["line-error-gutter", "CodeMirror-linenumbers", "CodeMirror-foldgutter"],
       indentWithTabs: false, indentUnit: 2, tabSize: 2,
-      extraKeys: extraKeys, keyMap: "sublime",
+      extraKeys: extraKeys,
+      keyMap: textEditorUserSettings.pub.keyMap,
       viewportMargin: Infinity,
       mode: options.mode,
       readOnly: true
@@ -90,6 +95,10 @@ class TextEditorWidget {
 
     this.clientId = clientId;
     projectClient.subResource("textEditorSettings", this);
+
+    textEditorUserSettings.emitter.addListener("keyMap", () => {
+      this.codeMirrorInstance.setOption("keyMap", textEditorUserSettings.pub.keyMap);
+    });
   }
 
   private setupAppMenu() {
