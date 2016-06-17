@@ -31,6 +31,8 @@ declare namespace SupTHREE {
     getMode(): string;
     setMode(mode: string): this;
     setSpace(space: string): this;
+    enable(): this;
+    disable(): this;
   }
 
   export class TransformMarker {
