@@ -26,13 +26,9 @@ function onWelcome() {
 
 function loadPlugins() {
   SupClient.fetch(`/systems/${SupCore.system.id}/plugins.json`, "json", (err: Error, pluginsInfo: SupCore.PluginsInfo) => {
-    async.each(pluginsInfo.list, (pluginName, pluginCallback) => {
+    async.each(pluginsInfo.list, (pluginName, cb) => {
       const pluginPath = `/systems/${SupCore.system.id}/plugins/${pluginName}`;
-      const documentationScript = document.createElement("script") as HTMLScriptElement;
-      documentationScript.addEventListener("load", () => { pluginCallback(); } );
-      documentationScript.addEventListener("error", () => { pluginCallback(); } );
-      documentationScript.src = `${pluginPath}/bundles/documentation.js`;
-      document.body.appendChild(documentationScript);
+      SupClient.loadScript(`${pluginPath}/bundles/documentation.js`, cb);
     }, (err) => { setupDocs(); });
   });
 }
