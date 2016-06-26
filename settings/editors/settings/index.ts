@@ -81,8 +81,6 @@ function setupSettings() {
     sectionElt.appendChild(divElt);
 
     const settingEditorClass = plugins[name].content.editor;
-    /* tslint:disable:no-unused-expression */
     new settingEditorClass(divElt, data.projectClient);
-    /* tslint:enable:no-unused-expression */
   }
 }
