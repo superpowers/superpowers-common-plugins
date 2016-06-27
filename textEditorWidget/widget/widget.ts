@@ -31,9 +31,9 @@ class TextEditorWidget {
 
   undoTimeout: number;
   undoStack: OT.TextOperation[] = [];
-  undoQuantityByAction: number[] = [0];
+  undoQuantityByAction: number[] = [];
   redoStack: OT.TextOperation[] = [];
-  redoQuantityByAction: number[] = [0];
+  redoQuantityByAction: number[] = [];
 
   sentOperation: OT.TextOperation;
   pendingOperation: OT.TextOperation;
@@ -122,8 +122,12 @@ class TextEditorWidget {
   }
 
   setText(text: string) {
+    this.undoStack.length = 0;
+    this.undoQuantityByAction.length = 0; this.undoQuantityByAction.push(0);
+    this.redoStack.length = 0;
+    this.redoQuantityByAction.length = 0; this.redoQuantityByAction.push(0);
+
     this.codeMirrorInstance.getDoc().setValue(text);
-    this.codeMirrorInstance.getDoc().clearHistory();
     this.codeMirrorInstance.setOption("readOnly", false);
 
     this.codeMirrorInstance.focus();
