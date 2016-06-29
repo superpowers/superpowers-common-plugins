@@ -11,6 +11,8 @@ require("codemirror/addon/comment/comment");
 require("codemirror/addon/hint/show-hint");
 require("codemirror/addon/selection/active-line");
 require("codemirror/keymap/sublime");
+require("codemirror/keymap/emacs");
+require("codemirror/keymap/vim");
 require("codemirror/addon/fold/foldcode");
 require("codemirror/addon/fold/foldgutter");
 require("codemirror/addon/fold/brace-fold");
@@ -365,6 +367,7 @@ class TextEditorWidget {
     this.codeMirrorInstance.setOption("tabSize", resource.pub.tabSize);
     this.codeMirrorInstance.setOption("indentUnit", resource.pub.tabSize);
     this.codeMirrorInstance.setOption("indentWithTabs", !resource.pub.softTab);
+    this.codeMirrorInstance.setOption("keyMap", resource.pub.keyMap);
     this.useSoftTab = resource.pub.softTab;
   };
 
@@ -378,6 +381,8 @@ class TextEditorWidget {
         this.useSoftTab = this.textEditorResource.pub.softTab;
         this.codeMirrorInstance.setOption("indentWithTabs", !this.textEditorResource.pub.softTab);
         break;
+      case "keyMap":
+        this.codeMirrorInstance.setOption("keyMap", this.textEditorResource.pub.keyMap);
     }
   };
 }
