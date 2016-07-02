@@ -1,5 +1,10 @@
+import * as fs from "fs";
+import * as path from "path";
+
 import TextEditorSettingsResource from "../data/TextEditorSettingsResource";
 import * as textEditorUserSettings from "../data/textEditorUserSettings";
+
+const modes = fs.readdirSync(path.join(__dirname, "../node_modules/codemirror/theme"));
 
 export default class TextEditorSettingsEditor {
   resource: TextEditorSettingsResource;
@@ -7,6 +12,7 @@ export default class TextEditorSettingsEditor {
   tabSizeField: HTMLInputElement;
   softTabField: HTMLInputElement;
   keyMapField: HTMLSelectElement;
+  themeField: HTMLSelectElement;
 
   constructor(container: HTMLDivElement, projectClient: SupClient.ProjectClient) {
     const { tbody } = SupClient.table.createTable(container);
@@ -35,6 +41,21 @@ export default class TextEditorSettingsEditor {
 
     textEditorUserSettings.emitter.addListener("keyMap", () => {
       this.keyMapField.value = textEditorUserSettings.pub.keyMap;
+    });
+
+    const themeRow = SupClient.table.appendRow(tbody, SupClient.i18n.t("settingsEditors:TextEditor.theme"));
+    const themeValues: { [value: string]: string } = { "default": "default" };
+    for (const mode of modes) {
+      const modeNoExtension = mode.slice(0, mode.length - 4);
+      themeValues[modeNoExtension] = modeNoExtension;
+    }
+    this.themeField = SupClient.table.appendSelectBox(themeRow.valueCell, themeValues, textEditorUserSettings.pub.theme);
+    this.themeField.addEventListener("change", (event: any) => {
+      textEditorUserSettings.edit("theme", event.target.value);
+    });
+
+    textEditorUserSettings.emitter.addListener("theme", () => {
+      this.themeField.value = textEditorUserSettings.pub.theme;
     });
   }
 

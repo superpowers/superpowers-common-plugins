@@ -23,26 +23,28 @@ require("codemirror/keymap/vim");
 /* tslint:enable */
 
 class TextEditorWidget {
-  textEditorResource: TextEditorSettingsResource;
+  private textEditorResource: TextEditorSettingsResource;
   codeMirrorInstance: CodeMirror.EditorFromTextArea;
 
-  editCallback: EditCallback;
-  sendOperationCallback: SendOperationCallback;
+  private editCallback: EditCallback;
+  private sendOperationCallback: SendOperationCallback;
 
   clientId: string;
-  tmpCodeMirrorDoc = new CodeMirror.Doc("");
-  texts: string[] = [];
+  private tmpCodeMirrorDoc = new CodeMirror.Doc("");
+  private texts: string[] = [];
 
-  undoTimeout: number;
-  undoStack: OT.TextOperation[] = [];
-  undoQuantityByAction: number[] = [];
-  redoStack: OT.TextOperation[] = [];
-  redoQuantityByAction: number[] = [];
+  private undoTimeout: number;
+  private undoStack: OT.TextOperation[] = [];
+  private undoQuantityByAction: number[] = [];
+  private redoStack: OT.TextOperation[] = [];
+  private redoQuantityByAction: number[] = [];
 
-  sentOperation: OT.TextOperation;
-  pendingOperation: OT.TextOperation;
+  private sentOperation: OT.TextOperation;
+  private pendingOperation: OT.TextOperation;
 
-  useSoftTab = true;
+  private useSoftTab = true;
+
+  private linkElt = SupClient.html("link", { parent: document.head, rel: "stylesheet" });
 
   constructor(projectClient: SupClient.ProjectClient, clientId: string, textArea: HTMLTextAreaElement, options: TextEditorWidgetOptions) {
     let extraKeys: { [name: string]: string|Function|boolean } = {
@@ -72,7 +74,6 @@ class TextEditorWidget {
     this.sendOperationCallback = options.sendOperationCallback;
 
     this.codeMirrorInstance = CodeMirror.fromTextArea(textArea, {
-      // theme: "monokai",
       lineNumbers: true,
       gutters: ["line-error-gutter", "CodeMirror-linenumbers", "CodeMirror-foldgutter"],
       indentWithTabs: false, indentUnit: 2, tabSize: 2,
@@ -82,6 +83,8 @@ class TextEditorWidget {
       mode: options.mode,
       readOnly: true
     });
+
+    this.updateTheme();
 
     this.codeMirrorInstance.setOption("matchBrackets", true);
     this.codeMirrorInstance.setOption("styleActiveLine", true);
@@ -98,6 +101,10 @@ class TextEditorWidget {
 
     textEditorUserSettings.emitter.addListener("keyMap", () => {
       this.codeMirrorInstance.setOption("keyMap", textEditorUserSettings.pub.keyMap);
+    });
+
+    textEditorUserSettings.emitter.addListener("theme", () => {
+      this.updateTheme();
     });
   }
 
@@ -128,6 +135,16 @@ class TextEditorWidget {
       menu.popup(win);
       return false;
     });
+  }
+
+  private updateTheme() {
+    if (textEditorUserSettings.pub.theme === "default") {
+      this.linkElt.href = "";
+      this.codeMirrorInstance.setOption("theme", textEditorUserSettings.pub.theme);
+    } else {
+      this.linkElt.href = `../../../../common/textEditorWidget/codemirror/theme/${textEditorUserSettings.pub.theme}.css`;
+      this.codeMirrorInstance.setOption("theme", textEditorUserSettings.pub.theme);
+    }
   }
 
   setText(text: string) {
