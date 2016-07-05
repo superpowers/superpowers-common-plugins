@@ -2,6 +2,7 @@ import Camera from "./Camera";
 
 const tmpVector3 = new THREE.Vector3();
 const tmpQuaternion = new THREE.Quaternion();
+const tmpEuler = new THREE.Euler();
 const upVector = new THREE.Vector3(0, 1, 0);
 
 const lerpFactor = 0.3;
@@ -11,6 +12,7 @@ const initialOrbitRadius = 10;
 
 const panningSpeed = 0.005;
 const orbitingSpeed = 0.008;
+const rotateSpeed = 0.02;
 const zoomingSpeed = 1.3;
 
 export default class Camera3DControls {
@@ -31,6 +33,9 @@ export default class Camera3DControls {
   // Vertical angle
   private phi: number;
   private targetPhi: number;
+  // Forward angle
+  private gamma: number;
+  private targetGamma: number;
 
   private moveVector = new THREE.Vector3();
   private pivotMarker: THREE.LineSegments;
@@ -47,6 +52,7 @@ export default class Camera3DControls {
     this.targetTheta = this.theta;
     this.phi = Math.atan2(Math.sqrt(tmpVector3.x * tmpVector3.x + tmpVector3.z * tmpVector3.z), tmpVector3.y);
     this.targetPhi = this.phi;
+    this.gamma = this.targetGamma = 0;
 
     const pivotGeometry = new THREE.Geometry();
     pivotGeometry.vertices.push(
@@ -134,6 +140,10 @@ export default class Camera3DControls {
       this.moveVector.y = 1;
     } else if (event.keyCode === 16 /* SHIFT */) {
       this.moveVector.y = -1;
+    } else if (event.keyCode === 74 /* J */) {
+      this.targetGamma = Math.min(this.targetGamma + rotateSpeed, Math.PI / 2);
+    } else if (event.keyCode === 75 /* K */) {
+      this.targetGamma = Math.max(this.targetGamma - rotateSpeed, -Math.PI / 2);
     }
   };
 
@@ -201,6 +211,7 @@ export default class Camera3DControls {
 
     this.theta += (this.targetTheta - this.theta) * lerpFactor;
     this.phi += (this.targetPhi - this.phi) * lerpFactor;
+    this.gamma += (this.targetGamma - this.gamma) * lerpFactor;
 
     tmpVector3.x = this.orbitRadius * Math.sin(this.phi) * Math.sin(this.theta);
     tmpVector3.y = this.orbitRadius * Math.cos(this.phi);
@@ -209,6 +220,9 @@ export default class Camera3DControls {
 
     this.camera.threeCamera.position.copy(this.orbitPivot).add(tmpVector3);
     this.camera.threeCamera.lookAt(this.orbitPivot);
+    tmpEuler.setFromQuaternion(this.camera.threeCamera.quaternion);
+    tmpEuler.z = this.gamma;
+    this.camera.threeCamera.setRotationFromEuler(tmpEuler);
     this.camera.threeCamera.updateMatrixWorld(false);
 
     // Update marker
