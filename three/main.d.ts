@@ -52,6 +52,7 @@ declare namespace SupTHREE {
   export class Camera3DControls {
     constructor(root: THREE.Object3D, camera: Camera, canvas: HTMLCanvasElement);
     resetOrbitPivot(position: THREE.Vector3): Camera3DControls;
+    setMoveSpeed(moveSpeed: number): Camera3DControls;
     update(): void;
   }
 }

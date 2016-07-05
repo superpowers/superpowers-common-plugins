@@ -4,7 +4,6 @@ const tmpVector3 = new THREE.Vector3();
 const tmpQuaternion = new THREE.Quaternion();
 const upVector = new THREE.Vector3(0, 1, 0);
 
-const moveSpeed = 0.3;
 const lerpFactor = 0.3;
 const minOrbitRadius = 0.5;
 const maxOrbitRadius = 500;
@@ -15,6 +14,8 @@ const orbitingSpeed = 0.008;
 const zoomingSpeed = 1.3;
 
 export default class Camera3DControls {
+  private moveSpeed = 0.3;
+
   private isPanning = false;
 
   private isOrbiting = false;
@@ -182,10 +183,15 @@ export default class Camera3DControls {
     return this;
   }
 
+  setMoveSpeed(moveSpeed: number) {
+    this.moveSpeed = moveSpeed;
+    return this;
+  }
+
   update() {
     if (this.moveVector.length() !== 0) {
       let rotatedMoveVector = this.moveVector.clone();
-      rotatedMoveVector.applyQuaternion(this.camera.threeCamera.quaternion).normalize().multiplyScalar(moveSpeed);
+      rotatedMoveVector.applyQuaternion(this.camera.threeCamera.quaternion).normalize().multiplyScalar(this.moveSpeed);
       this.camera.threeCamera.position.add(rotatedMoveVector);
       this.targetOrbitPivot.add(rotatedMoveVector);
     }
