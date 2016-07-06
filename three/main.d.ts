@@ -24,15 +24,15 @@ declare namespace SupTHREE {
     threeCamera: THREE.OrthographicCamera|THREE.PerspectiveCamera;
 
     constructor(root: THREE.Object3D, canvas: HTMLCanvasElement)
-    computeAspectRatio(): Camera;
-    setOrthographicMode(isOrthographic: boolean): Camera;
-    setFOV(fov: number): Camera;
-    setOrthographicScale(orthographicScale: number): Camera;
+    computeAspectRatio(): this;
+    setOrthographicMode(isOrthographic: boolean): this;
+    setFOV(fov: number): this;
+    setOrthographicScale(orthographicScale: number): this;
     getOrthographicScale(): number;
-    setViewport(x: number, y: number, width: number, height: number): Camera;
-    setDepth(depth: number): Camera;
-    setNearClippingPlane(nearClippingPlane: number): Camera;
-    setFarClippingPlane(farClippingPlane: number): Camera;
+    setViewport(x: number, y: number, width: number, height: number): this;
+    setDepth(depth: number): this;
+    setNearClippingPlane(nearClippingPlane: number): this;
+    setFarClippingPlane(farClippingPlane: number): this;
     render(renderer: THREE.WebGLRenderer, scene: THREE.Scene, channels: number[]): void;
   }
 
@@ -46,13 +46,17 @@ declare namespace SupTHREE {
 
   export class Camera2DControls {
     constructor(camera: Camera, canvas: HTMLCanvasElement, options?: Camera2DControlsOptions);
-    setMultiplier(newMultiplier: number): Camera2DControls;
+    setMultiplier(newMultiplier: number): this;
   }
 
   export class Camera3DControls {
     constructor(root: THREE.Object3D, camera: Camera, canvas: HTMLCanvasElement);
-    resetOrbitPivot(position: THREE.Vector3): Camera3DControls;
-    setMoveSpeed(moveSpeed: number): Camera3DControls;
+    resetOrbitPivot(position: THREE.Vector3): this;
+    setPosition(position: THREE.Vector3): this;
+    getPosition(): THREE.Vector3;
+    setOrientation(orientation: { theta: number; phi: number; gamma: number; }): this;
+    getOrientation(): { theta: number; phi: number; gamma: number; };
+    setMoveSpeed(moveSpeed: number): this;
     update(): void;
   }
 }

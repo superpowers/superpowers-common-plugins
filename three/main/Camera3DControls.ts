@@ -198,6 +198,26 @@ export default class Camera3DControls {
     return this;
   }
 
+  setPosition(position: THREE.Vector3) {
+    tmpVector3.x = this.orbitRadius * Math.sin(this.targetPhi) * Math.sin(this.targetTheta);
+    tmpVector3.y = this.orbitRadius * Math.cos(this.targetPhi);
+    tmpVector3.z = this.orbitRadius * Math.sin(this.targetPhi) * Math.cos(this.targetTheta);
+    tmpVector3.applyQuaternion(tmpQuaternion.clone().inverse());
+    tmpVector3.sub(position).negate();
+
+    this.targetOrbitPivot.copy(tmpVector3);
+    return this;
+  }
+  getPosition() { return this.camera.threeCamera.position; }
+
+  setOrientation(orientation: { theta: number; phi: number; gamma: number; }) {
+    this.targetTheta = orientation.theta;
+    this.targetPhi = orientation.phi;
+    this.targetGamma = orientation.gamma;
+    return this;
+  }
+  getOrientation() { return { theta: this.theta, phi: this.phi, gamma: this.gamma }; }
+
   update() {
     if (this.moveVector.length() !== 0) {
       let rotatedMoveVector = this.moveVector.clone();
