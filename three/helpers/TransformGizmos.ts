@@ -1,24 +1,36 @@
 const lineRadius = 0.015;
 
-namespace GizmoColors {
-  export const red = 0xe5432e;
-  export const green = 0x5bd72f;
-  export const blue = 0x3961d4;
-}
+type ColorName = "white"|"red"|"green"|"blue"|"yellow"|"cyan"|"magenta";
+const colors: { [colorName: string]: { enabled: number; disabled: number } } = {
+  white: { enabled: 0xffffff, disabled: 0xffffff },
+  red: { enabled: 0xe5432e, disabled: 0x646464 },
+  green: { enabled: 0x5bd72f, disabled: 0xb0b0b0 },
+  blue: { enabled: 0x3961d4, disabled: 0x606060 },
+  yellow: { enabled: 0xffff00, disabled: 0xececec },
+  cyan: { enabled: 0x00ffff, disabled: 0xc8c8c8 },
+  magenta: { enabled: 0xff00ff, disabled: 0x484848 }
+};
 
 class GizmoMaterial extends THREE.MeshBasicMaterial {
-  private oldColor: THREE.Color;
+  private enabledColor: THREE.Color;
+  private disabledColor: THREE.Color;
   private oldOpacity: number;
 
-  constructor(parameters: THREE.MeshBasicMaterialParameters) {
+  constructor(parameters?: THREE.MeshBasicMaterialParameters) {
     super(parameters);
 
     this.transparent = true;
 
     this.setValues(parameters);
-
-    this.oldColor = this.color.clone();
+    this.enabledColor = this.color.clone();
+    this.disabledColor = this.color.clone();
     this.oldOpacity = this.opacity;
+  }
+
+  setColor(colorName: ColorName) {
+    this.color.setHex(colors[colorName].enabled);
+    this.enabledColor.setHex(colors[colorName].enabled);
+    this.disabledColor.setHex(colors[colorName].disabled);
   }
 
   highlight(highlighted: boolean) {
@@ -26,15 +38,18 @@ class GizmoMaterial extends THREE.MeshBasicMaterial {
       this.color.setRGB(1, 1, 0);
       this.opacity = 1;
     } else {
-      this.color.copy(this.oldColor);
+      this.color.copy(this.enabledColor);
       this.opacity = this.oldOpacity;
     }
+  }
+
+  setDisabled(disabled: boolean) {
+    this.color.copy(disabled ? this.disabledColor : this.enabledColor);
   }
 }
 
 
 const pickerMaterial = new GizmoMaterial({ visible: false, transparent: false });
-type GizmoMap = { [name: string]: any[]; };
 
 export abstract class TransformGizmo extends THREE.Object3D {
   protected handlesRoot: THREE.Object3D;
@@ -106,11 +121,20 @@ export abstract class TransformGizmo extends THREE.Object3D {
     });
   };
 
-  setupGizmo(name: string, object: THREE.Object3D, parent: THREE.Object3D, position?: [number, number, number], rotation?: [number, number, number]) {
+  setDisabled(disabled: boolean) {
+    this.traverse((child: any) => {
+      if (child.material != null && child.material.setDisabled != null) {
+        child.material.setDisabled(disabled);
+      }
+    });
+  }
+
+  setupGizmo(name: string, object: THREE.Mesh, parent: THREE.Object3D, position?: [number, number, number], rotation?: [number, number, number], colorName?: ColorName) {
     object.name = name;
 
     if (position != null) object.position.set(position[0], position[1], position[2]);
     if (rotation != null) object.rotation.set(rotation[0], rotation[1], rotation[2]);
+    if (colorName != null) (object.material as GizmoMaterial).setColor(colorName);
 
     parent.add(object);
   }
@@ -146,21 +170,21 @@ export class TransformGizmoTranslate extends TransformGizmo {
 
     const lineGeometry = new THREE.CylinderGeometry(lineRadius, lineRadius, 1);
 
-    this.setupGizmo("X", new THREE.Mesh(arrowGeometry, new GizmoMaterial({ color: GizmoColors.red })), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ]);
-    this.setupGizmo("X", new THREE.Mesh(lineGeometry, new GizmoMaterial({ color: GizmoColors.red })), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ]);
+    this.setupGizmo("X", new THREE.Mesh(arrowGeometry, new GizmoMaterial()), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ], "red");
+    this.setupGizmo("X", new THREE.Mesh(lineGeometry, new GizmoMaterial()), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ], "red");
 
-    this.setupGizmo("Y", new THREE.Mesh(arrowGeometry, new GizmoMaterial({ color: GizmoColors.green })), this.handlesRoot, [ 0, 0.5, 0 ]);
-    this.setupGizmo("Y", new THREE.Mesh(lineGeometry, new GizmoMaterial({ color: GizmoColors.green })), this.handlesRoot, [ 0, 0.5, 0 ]);
+    this.setupGizmo("Y", new THREE.Mesh(arrowGeometry, new GizmoMaterial()), this.handlesRoot, [ 0, 0.5, 0 ], null, "green");
+    this.setupGizmo("Y", new THREE.Mesh(lineGeometry, new GizmoMaterial()), this.handlesRoot, [ 0, 0.5, 0 ], null, "green");
 
-    this.setupGizmo("Z", new THREE.Mesh(arrowGeometry, new GizmoMaterial({ color: GizmoColors.blue })), this.handlesRoot, [ 0, 0, 0.5 ], [ Math.PI / 2, 0, 0 ]);
-    this.setupGizmo("Z", new THREE.Mesh(lineGeometry, new GizmoMaterial({ color: GizmoColors.blue })), this.handlesRoot, [ 0, 0, 0.5 ], [ Math.PI / 2, 0, 0 ]);
+    this.setupGizmo("Z", new THREE.Mesh(arrowGeometry, new GizmoMaterial()), this.handlesRoot, [ 0, 0, 0.5 ], [ Math.PI / 2, 0, 0 ], "blue");
+    this.setupGizmo("Z", new THREE.Mesh(lineGeometry, new GizmoMaterial()), this.handlesRoot, [ 0, 0, 0.5 ], [ Math.PI / 2, 0, 0 ], "blue");
 
     const handlePlaneGeometry = new THREE.PlaneBufferGeometry(0.29, 0.29);
-    this.setupGizmo("XY", new THREE.Mesh(handlePlaneGeometry, new GizmoMaterial({ color: 0xffff00, opacity: 0.5 })), this.handlesRoot, [ 0.15, 0.15, 0 ]);
-    this.setupGizmo("YZ", new THREE.Mesh(handlePlaneGeometry, new GizmoMaterial({ color: 0x00ffff, opacity: 0.5 })), this.handlesRoot, [ 0, 0.15, 0.15 ], [ 0, Math.PI / 2, 0 ]);
-    this.setupGizmo("XZ", new THREE.Mesh(handlePlaneGeometry, new GizmoMaterial({ color: 0xff00ff, opacity: 0.5 })), this.handlesRoot, [ 0.15, 0, 0.15 ], [ - Math.PI / 2, 0, 0 ]);
+    this.setupGizmo("XY", new THREE.Mesh(handlePlaneGeometry, new GizmoMaterial({ opacity: 0.5 })), this.handlesRoot, [ 0.15, 0.15, 0 ], null, "yellow");
+    this.setupGizmo("YZ", new THREE.Mesh(handlePlaneGeometry, new GizmoMaterial({ opacity: 0.5 })), this.handlesRoot, [ 0, 0.15, 0.15 ], [ 0, Math.PI / 2, 0 ], "cyan");
+    this.setupGizmo("XZ", new THREE.Mesh(handlePlaneGeometry, new GizmoMaterial({ opacity: 0.5 })), this.handlesRoot, [ 0.15, 0, 0.15 ], [ - Math.PI / 2, 0, 0 ], "magenta");
 
-    this.setupGizmo("XYZ", new THREE.Mesh(new THREE.OctahedronGeometry(0.1, 0), new GizmoMaterial({ color: 0xffffff, opacity: 0.8 })), this.handlesRoot, [ 0, 0, 0 ], [ 0, 0, 0 ]);
+    this.setupGizmo("XYZ", new THREE.Mesh(new THREE.OctahedronGeometry(0.1, 0), new GizmoMaterial({ opacity: 0.8 })), this.handlesRoot, [ 0, 0, 0 ], [ 0, 0, 0 ], "white");
 
     // Pickers
     this.setupGizmo("X", new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0, 1, 4, 1, false), pickerMaterial), this.pickersRoot, [ 0.6, 0, 0 ], [ 0, 0, - Math.PI / 2 ]);
@@ -210,12 +234,12 @@ export class TransformGizmoRotate extends TransformGizmo {
 
     // Handles
     const ringGeometry = new THREE.TorusGeometry(radius, lineRadius, 4, 32);
-    this.setupGizmo("X", new THREE.Mesh(ringGeometry, new GizmoMaterial({ color: GizmoColors.red, side: THREE.DoubleSide })), this.handlesRoot, null, [ 0, -Math.PI / 2, -Math.PI / 2 ]);
-    this.setupGizmo("Y", new THREE.Mesh(ringGeometry, new GizmoMaterial({ color: GizmoColors.green, side: THREE.DoubleSide })), this.handlesRoot, null, [ Math.PI / 2, 0, 0 ]);
-    this.setupGizmo("Z", new THREE.Mesh(ringGeometry, new GizmoMaterial({ color: GizmoColors.blue, side: THREE.DoubleSide })), this.handlesRoot, null, [ 0, 0, -Math.PI / 2 ]);
+    this.setupGizmo("X", new THREE.Mesh(ringGeometry, new GizmoMaterial({ side: THREE.DoubleSide })), this.handlesRoot, null, [ 0, -Math.PI / 2, -Math.PI / 2 ], "red");
+    this.setupGizmo("Y", new THREE.Mesh(ringGeometry, new GizmoMaterial({ side: THREE.DoubleSide })), this.handlesRoot, null, [ Math.PI / 2, 0, 0 ], "green");
+    this.setupGizmo("Z", new THREE.Mesh(ringGeometry, new GizmoMaterial({ side: THREE.DoubleSide })), this.handlesRoot, null, [ 0, 0, -Math.PI / 2 ], "blue");
 
     const globalRingGeometry = new THREE.RingGeometry(globalRadius - lineRadius, globalRadius + lineRadius, 32, 8);
-    this.setupGizmo("E", new THREE.Mesh(globalRingGeometry, new GizmoMaterial({ color: 0xffffff, opacity: 0.8, side: THREE.DoubleSide })), this.handlesRoot);
+    this.setupGizmo("E", new THREE.Mesh(globalRingGeometry, new GizmoMaterial({ opacity: 0.8, side: THREE.DoubleSide })), this.handlesRoot, null, null, "white");
 
     // Pickers
     const pickerThickness = 0.08;
@@ -250,16 +274,16 @@ export class TransformGizmoScale extends TransformGizmo {
 
     const lineGeometry = new THREE.CylinderGeometry(lineRadius, lineRadius, 1);
 
-    this.setupGizmo("X", new THREE.Mesh(arrowGeometry, new GizmoMaterial({ color: GizmoColors.red })), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ]);
-    this.setupGizmo("X", new THREE.Mesh(lineGeometry, new GizmoMaterial({ color: GizmoColors.red })), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ]);
+    this.setupGizmo("X", new THREE.Mesh(arrowGeometry, new GizmoMaterial()), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ], "red");
+    this.setupGizmo("X", new THREE.Mesh(lineGeometry, new GizmoMaterial()), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ], "red");
 
-    this.setupGizmo("Y", new THREE.Mesh(arrowGeometry, new GizmoMaterial({ color: GizmoColors.green })), this.handlesRoot, [ 0, 0.5, 0 ]);
-    this.setupGizmo("Y", new THREE.Mesh(lineGeometry, new GizmoMaterial({ color: GizmoColors.green })), this.handlesRoot, [ 0, 0.5, 0 ]);
+    this.setupGizmo("Y", new THREE.Mesh(arrowGeometry, new GizmoMaterial()), this.handlesRoot, [ 0, 0.5, 0 ], null, "green");
+    this.setupGizmo("Y", new THREE.Mesh(lineGeometry, new GizmoMaterial()), this.handlesRoot, [ 0, 0.5, 0 ], null, "green");
 
-    this.setupGizmo("Z", new THREE.Mesh(arrowGeometry, new GizmoMaterial({ color: GizmoColors.blue })), this.handlesRoot, [ 0, 0, 0.5 ], [ Math.PI / 2, 0, 0 ]);
-    this.setupGizmo("Z", new THREE.Mesh(lineGeometry, new GizmoMaterial({ color: GizmoColors.blue })), this.handlesRoot, [ 0, 0, 0.5 ], [ Math.PI / 2, 0, 0 ]);
+    this.setupGizmo("Z", new THREE.Mesh(arrowGeometry, new GizmoMaterial()), this.handlesRoot, [ 0, 0, 0.5 ], [ Math.PI / 2, 0, 0 ], "blue");
+    this.setupGizmo("Z", new THREE.Mesh(lineGeometry, new GizmoMaterial()), this.handlesRoot, [ 0, 0, 0.5 ], [ Math.PI / 2, 0, 0 ], "blue");
 
-    this.setupGizmo("XYZ", new THREE.Mesh(new THREE.OctahedronGeometry(0.1, 0), new GizmoMaterial({ color: 0xffffff, opacity: 0.8 })), this.handlesRoot, [ 0, 0, 0 ], [ 0, 0, 0 ]);
+    this.setupGizmo("XYZ", new THREE.Mesh(new THREE.OctahedronGeometry(0.1, 0), new GizmoMaterial({ opacity: 0.8 })), this.handlesRoot, [ 0, 0, 0 ], [ 0, 0, 0 ], "white");
 
     // Pickers
     this.setupGizmo("X", new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0, 1, 4, 1, false), pickerMaterial), this.pickersRoot, [ 0.6, 0, 0 ], [ 0, 0, - Math.PI / 2 ]);
@@ -302,16 +326,16 @@ export class TransformGizmoResize extends TransformGizmo {
 
     const lineGeometry = new THREE.CylinderGeometry(lineRadius, lineRadius, 1);
 
-    this.setupGizmo("X", new THREE.Mesh(arrowGeometry, new GizmoMaterial({ color: GizmoColors.red })), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ]);
-    this.setupGizmo("X", new THREE.Mesh(lineGeometry, new GizmoMaterial({ color: GizmoColors.red })), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ]);
+    this.setupGizmo("X", new THREE.Mesh(arrowGeometry, new GizmoMaterial()), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ], "red");
+    this.setupGizmo("X", new THREE.Mesh(lineGeometry, new GizmoMaterial()), this.handlesRoot, [ 0.5, 0, 0 ], [ 0, 0, - Math.PI / 2 ], "red");
 
-    this.setupGizmo("Y", new THREE.Mesh(arrowGeometry, new GizmoMaterial({ color: GizmoColors.green })), this.handlesRoot, [ 0, 0.5, 0 ]);
-    this.setupGizmo("Y", new THREE.Mesh(lineGeometry, new GizmoMaterial({ color: GizmoColors.green })), this.handlesRoot, [ 0, 0.5, 0 ]);
+    this.setupGizmo("Y", new THREE.Mesh(arrowGeometry, new GizmoMaterial()), this.handlesRoot, [ 0, 0.5, 0 ], null, "green");
+    this.setupGizmo("Y", new THREE.Mesh(lineGeometry, new GizmoMaterial()), this.handlesRoot, [ 0, 0.5, 0 ], null, "green");
 
-    this.setupGizmo("Z", new THREE.Mesh(arrowGeometry, new GizmoMaterial({ color: GizmoColors.blue })), this.handlesRoot, [ 0, 0, 0.5 ], [ Math.PI / 2, 0, 0 ]);
-    this.setupGizmo("Z", new THREE.Mesh(lineGeometry, new GizmoMaterial({ color: GizmoColors.blue })), this.handlesRoot, [ 0, 0, 0.5 ], [ Math.PI / 2, 0, 0 ]);
+    this.setupGizmo("Z", new THREE.Mesh(arrowGeometry, new GizmoMaterial()), this.handlesRoot, [ 0, 0, 0.5 ], [ Math.PI / 2, 0, 0 ], "blue");
+    this.setupGizmo("Z", new THREE.Mesh(lineGeometry, new GizmoMaterial()), this.handlesRoot, [ 0, 0, 0.5 ], [ Math.PI / 2, 0, 0 ], "blue");
 
-    this.setupGizmo("XYZ", new THREE.Mesh(new THREE.OctahedronGeometry(0.1, 0), new GizmoMaterial({ color: 0xffffff, opacity: 0.8 })), this.handlesRoot, [ 0, 0, 0 ], [ 0, 0, 0 ]);
+    this.setupGizmo("XYZ", new THREE.Mesh(new THREE.OctahedronGeometry(0.1, 0), new GizmoMaterial({ opacity: 0.8 })), this.handlesRoot, [ 0, 0, 0 ], [ 0, 0, 0 ], "white");
 
     // Pickers
     this.setupGizmo("X", new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0, 1, 4, 1, false), pickerMaterial), this.pickersRoot, [ 0.6, 0, 0 ], [ 0, 0, - Math.PI / 2 ]);

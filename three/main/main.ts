@@ -2,11 +2,9 @@ import * as THREE from "three";
 (window as any).THREE = THREE;
 THREE.Euler.DefaultOrder = "YXZ";
 
-/* tslint:disable:no-unused-variable */
 import Camera from "./Camera";
 import Camera2DControls from "./Camera2DControls";
 import Camera3DControls from "./Camera3DControls";
-/* tslint:enable:no-unused-variable */
 
 export { Camera, Camera2DControls, Camera3DControls };
 

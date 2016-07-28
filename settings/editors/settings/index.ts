@@ -29,15 +29,11 @@ function loadPlugins() {
       (cb) => {
         SupClient.i18n.load(i18nFiles, cb);
       }, (cb) => {
-        async.each(pluginsInfo.list, (pluginName, pluginCallback) => {
+        async.each(pluginsInfo.list, (pluginName, cb) => {
           const pluginPath = `/systems/${SupCore.system.id}/plugins/${pluginName}`;
           async.each(["data", "settingsEditors"], (name, cb) => {
-            const script = document.createElement("script");
-            script.src = `${pluginPath}/bundles/${name}.js`;
-            script.addEventListener("load", () => { cb(null); } );
-            script.addEventListener("error", () => { cb(null); } );
-            document.body.appendChild(script);
-          }, pluginCallback);
+            SupClient.loadScript(`${pluginPath}/bundles/${name}.js`, cb);
+          }, cb);
         }, cb);
       }
     ], setupSettings);
@@ -45,48 +41,41 @@ function loadPlugins() {
 }
 
 function setupSettings() {
-  const mainElt = document.querySelector("main");
+  const mainElt = document.querySelector("main") as HTMLDivElement;
 
   const plugins = SupClient.getPlugins<SupClient.SettingsEditorPlugin>("settingsEditors");
   const sortedNames = Object.keys(plugins);
   sortedNames.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
   const createSection = (namespace: string) => {
-    const sectionHeaderElt = document.createElement("header");
-    sectionHeaderElt.textContent = SupClient.i18n.t(`settingsEditors:namespaces.${namespace}`);
-    mainElt.appendChild(sectionHeaderElt);
-    const sectionRootElt = document.createElement("div");
-    sectionRootElt.classList.add(`namespace-${namespace}`);
-    mainElt.appendChild(sectionRootElt);
+    const header = SupClient.html("header", { parent: mainElt, textContent: SupClient.i18n.t(`settingsEditors:namespaces.${namespace}`) });
+    const root = SupClient.html("div", `namespace-${namespace}`, { parent: mainElt });
 
-    return sectionRootElt;
+    return { header, root };
   };
 
   // Create general section first so we are sure it is displayed above
-  createSection("general");
+  const generalSection = createSection("general");
 
   for (const name of sortedNames) {
     const namespace = plugins[name].content.namespace;
     let sectionRootElt = mainElt.querySelector(`div.namespace-${namespace}`) as HTMLDivElement;
-    if (sectionRootElt == null) sectionRootElt = createSection(namespace);
+    if (sectionRootElt == null) sectionRootElt = createSection(namespace).root;
 
-    const sectionElt = document.createElement("section");
-    sectionElt.id = `settings-${name}`;
-    sectionRootElt.appendChild(sectionElt);
+    const sectionElt = SupClient.html("section", { parent: sectionRootElt });
 
-    const headerElt = document.createElement("header");
-    const sectionAnchorElt = document.createElement("a");
-    sectionAnchorElt.name = name;
-    sectionAnchorElt.textContent = SupClient.i18n.t(`settingsEditors:${name}.label`);
-    headerElt.appendChild(sectionAnchorElt);
-    sectionElt.appendChild(headerElt);
+    const headerElt = SupClient.html("header", { parent: sectionElt });
+    SupClient.html("a", { parent: headerElt, textContent: SupClient.i18n.t(`settingsEditors:${name}.label`), id: name });
 
-    const divElt = document.createElement("div");
-    sectionElt.appendChild(divElt);
+    const editorContentElt = SupClient.html("div", { parent: sectionElt });
 
     const settingEditorClass = plugins[name].content.editor;
-    /* tslint:disable:no-unused-expression */
-    new settingEditorClass(divElt, data.projectClient);
-    /* tslint:enable:no-unused-expression */
+    new settingEditorClass(editorContentElt, data.projectClient);
+  }
+
+  // Remove general section if it's empty
+  if (generalSection.root.children.length === 0) {
+    mainElt.removeChild(generalSection.header);
+    mainElt.removeChild(generalSection.root);
   }
 }

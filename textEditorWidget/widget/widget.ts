@@ -1,4 +1,5 @@
 import TextEditorSettingsResource from "../data/TextEditorSettingsResource";
+import * as textEditorUserSettings from "../data/textEditorUserSettings";
 
 import * as OT from "operational-transform";
 
@@ -10,35 +11,40 @@ require("codemirror/addon/edit/closebrackets");
 require("codemirror/addon/comment/comment");
 require("codemirror/addon/hint/show-hint");
 require("codemirror/addon/selection/active-line");
-require("codemirror/keymap/sublime");
 require("codemirror/addon/fold/foldcode");
 require("codemirror/addon/fold/foldgutter");
 require("codemirror/addon/fold/brace-fold");
 require("codemirror/addon/fold/comment-fold");
 require("codemirror/addon/fold/indent-fold");
+
+require("codemirror/keymap/sublime");
+require("codemirror/keymap/emacs");
+require("codemirror/keymap/vim");
 /* tslint:enable */
 
 class TextEditorWidget {
-  textEditorResource: TextEditorSettingsResource;
+  private textEditorResource: TextEditorSettingsResource;
   codeMirrorInstance: CodeMirror.EditorFromTextArea;
 
-  editCallback: EditCallback;
-  sendOperationCallback: SendOperationCallback;
+  private editCallback: EditCallback;
+  private sendOperationCallback: SendOperationCallback;
 
   clientId: string;
-  tmpCodeMirrorDoc = new CodeMirror.Doc("");
-  texts: string[] = [];
+  private tmpCodeMirrorDoc = new CodeMirror.Doc("");
+  private texts: string[] = [];
 
-  undoTimeout: number;
-  undoStack: OT.TextOperation[] = [];
-  undoQuantityByAction: number[] = [0];
-  redoStack: OT.TextOperation[] = [];
-  redoQuantityByAction: number[] = [0];
+  private undoTimeout: number;
+  private undoStack: OT.TextOperation[] = [];
+  private undoQuantityByAction: number[] = [];
+  private redoStack: OT.TextOperation[] = [];
+  private redoQuantityByAction: number[] = [];
 
-  sentOperation: OT.TextOperation;
-  pendingOperation: OT.TextOperation;
+  private sentOperation: OT.TextOperation;
+  private pendingOperation: OT.TextOperation;
 
-  useSoftTab = true;
+  private useSoftTab = true;
+
+  private linkElt = SupClient.html("link", { parent: document.head, rel: "stylesheet" });
 
   constructor(projectClient: SupClient.ProjectClient, clientId: string, textArea: HTMLTextAreaElement, options: TextEditorWidgetOptions) {
     let extraKeys: { [name: string]: string|Function|boolean } = {
@@ -68,15 +74,17 @@ class TextEditorWidget {
     this.sendOperationCallback = options.sendOperationCallback;
 
     this.codeMirrorInstance = CodeMirror.fromTextArea(textArea, {
-      // theme: "monokai",
       lineNumbers: true,
       gutters: ["line-error-gutter", "CodeMirror-linenumbers", "CodeMirror-foldgutter"],
       indentWithTabs: false, indentUnit: 2, tabSize: 2,
-      extraKeys: extraKeys, keyMap: "sublime",
+      extraKeys: extraKeys,
+      keyMap: textEditorUserSettings.pub.keyMap,
       viewportMargin: Infinity,
       mode: options.mode,
       readOnly: true
     });
+
+    this.updateTheme();
 
     this.codeMirrorInstance.setOption("matchBrackets", true);
     this.codeMirrorInstance.setOption("styleActiveLine", true);
@@ -90,6 +98,14 @@ class TextEditorWidget {
 
     this.clientId = clientId;
     projectClient.subResource("textEditorSettings", this);
+
+    textEditorUserSettings.emitter.addListener("keyMap", () => {
+      this.codeMirrorInstance.setOption("keyMap", textEditorUserSettings.pub.keyMap);
+    });
+
+    textEditorUserSettings.emitter.addListener("theme", () => {
+      this.updateTheme();
+    });
   }
 
   private setupAppMenu() {
@@ -121,9 +137,23 @@ class TextEditorWidget {
     });
   }
 
+  private updateTheme() {
+    if (textEditorUserSettings.pub.theme === "default") {
+      this.linkElt.href = "";
+      this.codeMirrorInstance.setOption("theme", textEditorUserSettings.pub.theme);
+    } else {
+      this.linkElt.href = `../../../../common/textEditorWidget/codemirror/theme/${textEditorUserSettings.pub.theme}.css`;
+      this.codeMirrorInstance.setOption("theme", textEditorUserSettings.pub.theme);
+    }
+  }
+
   setText(text: string) {
+    this.undoStack.length = 0;
+    this.undoQuantityByAction.length = 0; this.undoQuantityByAction.push(0);
+    this.redoStack.length = 0;
+    this.redoQuantityByAction.length = 0; this.redoQuantityByAction.push(0);
+
     this.codeMirrorInstance.getDoc().setValue(text);
-    this.codeMirrorInstance.getDoc().clearHistory();
     this.codeMirrorInstance.setOption("readOnly", false);
 
     this.codeMirrorInstance.focus();

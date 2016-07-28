@@ -1,5 +1,5 @@
 const gulp = require("gulp");
-const tasks = [ "stylus", "copy-cm-modes" ];
+const tasks = [ "stylus", "copy-cm-modes", "copy-cm-themes" ];
 
 // Stylus
 const stylus = require("gulp-stylus");
@@ -25,6 +25,9 @@ makeBrowserify("./widget/widget.js", "./public/", "widget");
 
 // Copy CodeMirror modes
 gulp.task("copy-cm-modes", () => gulp.src([ "node_modules/codemirror/mode/**/*" ]).pipe(gulp.dest("public/codemirror/mode")));
+
+// Copy CodeMirror themes
+gulp.task("copy-cm-themes", () => gulp.src([ "node_modules/codemirror/theme/**/*" ]).pipe(gulp.dest("public/codemirror/theme")));
 
 // All
 gulp.task("default", tasks);

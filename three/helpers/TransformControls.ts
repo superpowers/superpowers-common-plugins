@@ -56,6 +56,7 @@ export default class TransformControls extends THREE.Object3D {
   private mode: "translate"|"rotate"|"scale"|"resize" = "translate";
   private space = "local";
   private dragging = false;
+  private disabled = true;
   private gizmo: { [name: string]: TransformGizmo; } = {
     "translate": new TransformGizmoTranslate(),
     "rotate": new TransformGizmoRotate(),
@@ -80,37 +81,11 @@ export default class TransformControls extends THREE.Object3D {
       this.add(gizmoObj);
     }
 
-    this.domElement.addEventListener("mousedown", this.onPointerDown, false);
-    this.domElement.addEventListener("touchstart", this.onPointerDown, false);
-
-    this.domElement.addEventListener("mousemove", this.onPointerHover, false);
-    this.domElement.addEventListener("touchmove", this.onPointerHover, false);
-
-    this.domElement.addEventListener("mousemove", this.onPointerMove, false);
-    this.domElement.addEventListener("touchmove", this.onPointerMove, false);
-
-    this.domElement.addEventListener("mouseup", this.onPointerUp, false);
-    this.domElement.addEventListener("mouseout", this.onPointerUp, false);
-    this.domElement.addEventListener("touchend", this.onPointerUp, false);
-    this.domElement.addEventListener("touchcancel", this.onPointerUp, false);
-    this.domElement.addEventListener("touchleave", this.onPointerUp, false);
+    this.enable();
   }
 
   dispose() {
-    this.domElement.removeEventListener("mousedown", this.onPointerDown);
-    this.domElement.removeEventListener("touchstart", this.onPointerDown);
-
-    this.domElement.removeEventListener("mousemove", this.onPointerHover);
-    this.domElement.removeEventListener("touchmove", this.onPointerHover);
-
-    this.domElement.removeEventListener("mousemove", this.onPointerMove);
-    this.domElement.removeEventListener("touchmove", this.onPointerMove);
-
-    this.domElement.removeEventListener("mouseup", this.onPointerUp);
-    this.domElement.removeEventListener("mouseout", this.onPointerUp);
-    this.domElement.removeEventListener("touchend", this.onPointerUp);
-    this.domElement.removeEventListener("touchcancel", this.onPointerUp);
-    this.domElement.removeEventListener("touchleave", this.onPointerUp);
+    this.disable();
   }
 
   setVisible(visible: boolean) {
@@ -164,6 +139,56 @@ export default class TransformControls extends THREE.Object3D {
     return this;
   };
 
+  enable() {
+    if (!this.disabled) return this;
+
+    this.domElement.addEventListener("mousedown", this.onPointerDown, false);
+    this.domElement.addEventListener("touchstart", this.onPointerDown, false);
+
+    this.domElement.addEventListener("mousemove", this.onPointerHover, false);
+    this.domElement.addEventListener("touchmove", this.onPointerHover, false);
+
+    this.domElement.addEventListener("mousemove", this.onPointerMove, false);
+    this.domElement.addEventListener("touchmove", this.onPointerMove, false);
+
+    this.domElement.addEventListener("mouseup", this.onPointerUp, false);
+    this.domElement.addEventListener("mouseout", this.onPointerUp, false);
+    this.domElement.addEventListener("touchend", this.onPointerUp, false);
+    this.domElement.addEventListener("touchcancel", this.onPointerUp, false);
+    this.domElement.addEventListener("touchleave", this.onPointerUp, false);
+
+    this.dragging = false;
+    this.disabled = false;
+    for (const gizmoName in this.gizmo) this.gizmo[gizmoName].setDisabled(false);
+
+    return this;
+  }
+
+  disable() {
+    if (this.disabled) return this;
+
+    this.domElement.removeEventListener("mousedown", this.onPointerDown);
+    this.domElement.removeEventListener("touchstart", this.onPointerDown);
+
+    this.domElement.removeEventListener("mousemove", this.onPointerHover);
+    this.domElement.removeEventListener("touchmove", this.onPointerHover);
+
+    this.domElement.removeEventListener("mousemove", this.onPointerMove);
+    this.domElement.removeEventListener("touchmove", this.onPointerMove);
+
+    this.domElement.removeEventListener("mouseup", this.onPointerUp);
+    this.domElement.removeEventListener("mouseout", this.onPointerUp);
+    this.domElement.removeEventListener("touchend", this.onPointerUp);
+    this.domElement.removeEventListener("touchcancel", this.onPointerUp);
+    this.domElement.removeEventListener("touchleave", this.onPointerUp);
+
+    this.dragging = false;
+    this.disabled = true;
+    for (const gizmoName in this.gizmo) this.gizmo[gizmoName].setDisabled(true);
+
+    return this;
+  }
+
   update(copyTarget = true) {
     if (this.target == null) return;
 
@@ -209,7 +234,7 @@ export default class TransformControls extends THREE.Object3D {
     if (this.space === "local" || this.mode === "scale" || this.mode === "resize") this.gizmo[this.mode].update(worldRotation, eye);
     else if (this.space === "world") this.gizmo[this.mode].update(new THREE.Euler(), eye);
 
-    this.gizmo[this.mode].highlight(this.axis);
+    if (!this.disabled) this.gizmo[this.mode].highlight(this.axis);
 
     this.updateMatrixWorld(true);
   };
