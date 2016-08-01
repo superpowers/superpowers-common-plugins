@@ -13,7 +13,7 @@ const initialOrbitRadius = 10;
 const panningSpeed = 0.005;
 const orbitingSpeed = 0.008;
 const rotateSpeed = 0.02;
-const zoomingSpeed = 1.3;
+const zoomingSpeed = 1.2;
 
 export default class Camera3DControls {
   private moveSpeed = 0.3;
@@ -117,9 +117,8 @@ export default class Camera3DControls {
   };
 
   private onWheel = (event: WheelEvent) => {
-    const multiplier = event.deltaY / 100 * zoomingSpeed;
-    if (event.deltaY > 0) this.targetOrbitRadius *= multiplier;
-    else if (event.deltaY < 0) this.targetOrbitRadius /= -multiplier;
+    if (event.deltaY > 0) this.targetOrbitRadius *= zoomingSpeed;
+    else if (event.deltaY < 0) this.targetOrbitRadius /= zoomingSpeed;
     else return;
 
     this.targetOrbitRadius = Math.min(Math.max(this.targetOrbitRadius, minOrbitRadius), maxOrbitRadius);
