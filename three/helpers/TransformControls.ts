@@ -196,10 +196,9 @@ export default class TransformControls extends THREE.Object3D {
       this.root.position.copy(this.target.getWorldPosition());
       this.root.quaternion.copy(this.target.getWorldQuaternion());
 
-      const geometry = (this.target as THREE.Mesh).geometry as THREE.BoxGeometry;
-      const width = (geometry != null && geometry.parameters.width != null) ? geometry.parameters.width : 1;
-      const height = (geometry != null && geometry.parameters.height != null) ? geometry.parameters.height : 1;
-      const depth = (geometry != null && geometry.parameters.depth != null) ? geometry.parameters.depth : 1;
+      const width = this.target.userData.width;
+      const height = this.target.userData.height;
+      const depth = this.target.userData.depth;
 
       if (this.mode === "resize") {
         this.root.scale.x = Math.abs(width);
