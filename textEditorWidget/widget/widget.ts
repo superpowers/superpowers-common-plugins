@@ -62,7 +62,8 @@ class TextEditorWidget {
       "Shift-Ctrl-Z": () => { this.redo(); },
       "Shift-Cmd-Z": () => { this.redo(); },
       "Ctrl-Y": () => { this.redo(); },
-      "Cmd-Y": () => { this.redo(); }
+      "Cmd-Y": () => { this.redo(); },
+      "Alt-F": "findPersistent"
     };
     if (options.extraKeys != null) {
       for (const keyName in options.extraKeys) {
