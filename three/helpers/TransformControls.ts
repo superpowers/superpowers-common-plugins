@@ -194,43 +194,31 @@ export default class TransformControls extends THREE.Object3D {
 
     if (copyTarget) {
       this.root.position.copy(this.target.getWorldPosition());
+      this.root.quaternion.copy(this.target.getWorldQuaternion());
 
-      if (this.target.userData.stretch != null) {
-        // NOTE: Workaround for negative scales messing with extracted rotation
-        this.target.scale.set(1, 1, 1);
-        this.root.quaternion.copy(this.target.getWorldQuaternion());
-        this.target.scale.copy(this.target.userData.stretch);
-        this.target.updateMatrixWorld(false);
-      } else {
-        this.root.quaternion.copy(this.target.getWorldQuaternion());
-      }
+      const width = this.target.userData.width;
+      const height = this.target.userData.height;
+      const depth = this.target.userData.depth;
 
       if (this.mode === "resize") {
-        if (this.target.userData.size != null) this.root.scale.copy(this.target.userData.size);
-      } else if (this.mode === "scale") {
-        if (this.target.userData.stretch != null) {
-          this.root.scale.copy(this.target.userData.stretch);
-          if (this.root.scale.x === 0) this.root.scale.x = 0.0001;
-          if (this.root.scale.y === 0) this.root.scale.y = 0.0001;
-          if (this.root.scale.z === 0) this.root.scale.z = 0.0001;
-        }
+        this.root.scale.x = Math.abs(width);
+        this.root.scale.y = Math.abs(height);
+        this.root.scale.z = Math.abs(depth);
+      } else {
+        this.root.scale.x = (width < 0 ? -1 : 1) * this.target.scale.x;
+        this.root.scale.y = (height < 0 ? -1 : 1) * this.target.scale.y;
+        this.root.scale.z = (depth < 0 ? -1 : 1) * this.target.scale.z;
       }
     }
     this.root.updateMatrixWorld(false);
     worldPosition.setFromMatrixPosition(this.root.matrixWorld);
 
-    tempMatrix.extractRotation(this.root.matrixWorld);
-
-    if (this.mode === "scale" && this.target.userData.stretch != null) {
-      // NOTE: Workaround for negative scales messing with extracted rotation
-      const stretch = this.target.userData.stretch;
-      const scaleX = stretch.x !== 0 ? stretch.x / Math.abs(stretch.x) : 1;
-      const scaleY = stretch.y !== 0 ? stretch.y / Math.abs(stretch.y) : 1;
-      const scaleZ = stretch.z !== 0 ? stretch.z / Math.abs(stretch.z) : 1;
-      const negativeScaleFixMatrix = new THREE.Matrix4().makeScale(scaleX, scaleY, scaleZ);
-      tempMatrix.multiply(negativeScaleFixMatrix);
-    }
-    worldRotation.setFromRotationMatrix(tempMatrix);
+    // NOTE: Workaround for negative scales messing with extracted rotation — elisee
+    const scaleX = this.root.scale.x / Math.abs(this.root.scale.x);
+    const scaleY = this.root.scale.y / Math.abs(this.root.scale.y);
+    const scaleZ = this.root.scale.z / Math.abs(this.root.scale.z);
+    const negativeScaleFixMatrix = new THREE.Matrix4().makeScale(scaleX, scaleY, scaleZ);
+    worldRotation.setFromRotationMatrix(tempMatrix.extractRotation(this.root.matrixWorld).multiply(negativeScaleFixMatrix));
 
     this.camera.updateMatrixWorld(false);
     camPosition.setFromMatrixPosition(this.camera.matrixWorld);
