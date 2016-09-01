@@ -18,7 +18,8 @@ const zoomingSpeed = 1.2;
 export default class Camera3DControls {
   private moveSpeed = 0.3;
 
-  private isPanning = false;
+  private wantToPan = false;
+  private hasMovedWhilePanning = false;
 
   private isOrbiting = false;
   private orbitPivot: THREE.Vector3;
@@ -77,10 +78,11 @@ export default class Camera3DControls {
   }
 
   private onMouseDown = (event: MouseEvent) => {
-    if (this.isPanning || this.isOrbiting) return;
+    if (this.wantToPan || this.isOrbiting) return;
 
     if (event.button === 2) {
-      this.isPanning = true;
+      this.wantToPan = true;
+      this.hasMovedWhilePanning = false;
 
     } else if (event.button === 1 || (event.button === 0 && event.altKey)) {
       this.isOrbiting = true;
@@ -101,7 +103,9 @@ export default class Camera3DControls {
   };
 
   private onMouseMove = (event: MouseEvent) => {
-    if (this.isPanning) {
+    if (this.wantToPan) {
+      this.hasMovedWhilePanning = true;
+
       const panningMultiplier = panningSpeed * (1 + Math.sqrt(this.targetOrbitRadius));
       tmpVector3.set(-event.movementX * panningMultiplier, event.movementY * panningMultiplier, 0).applyQuaternion(this.camera.threeCamera.quaternion);
       this.targetOrbitPivot.add(tmpVector3);
@@ -164,7 +168,8 @@ export default class Camera3DControls {
 
   private onMouseUp = (event: MouseEvent) => {
     if (event.button === 2) {
-      this.isPanning = false;
+      this.wantToPan = false;
+      this.hasMovedWhilePanning = false;
 
     } else if (event.button === 1 || event.button === 0) {
       this.isOrbiting = false;
@@ -176,7 +181,7 @@ export default class Camera3DControls {
 
   private onBlur = (event: Event) => {
     this.moveVector.set(0, 0, 0);
-    this.isPanning = false;
+    this.wantToPan = false;
 
     if (this.isOrbiting) {
       this.isOrbiting = false;
@@ -217,6 +222,8 @@ export default class Camera3DControls {
   }
   getOrientation() { return { theta: this.theta, phi: this.phi, gamma: this.gamma }; }
 
+  hasJustPanned() { return this.wantToPan && this.hasMovedWhilePanning; }
+
   update() {
     if (this.moveVector.length() !== 0) {
       let rotatedMoveVector = this.moveVector.clone();
@@ -246,7 +253,7 @@ export default class Camera3DControls {
 
     // Update marker
     if (this.orbitPivot.distanceTo(this.targetOrbitPivot) > 0.1 ||
-    Math.abs(this.orbitRadius - this.targetOrbitRadius) > 0.1 || this.isOrbiting || this.isPanning) {
+    Math.abs(this.orbitRadius - this.targetOrbitRadius) > 0.1 || this.isOrbiting || this.wantToPan) {
       this.pivotMarker.material.opacity = 0.5;
     } else {
       this.pivotMarker.material.opacity *= 1 - lerpFactor;

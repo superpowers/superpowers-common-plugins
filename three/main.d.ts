@@ -56,6 +56,7 @@ declare namespace SupTHREE {
     getPosition(): THREE.Vector3;
     setOrientation(orientation: { theta: number; phi: number; gamma: number; }): this;
     getOrientation(): { theta: number; phi: number; gamma: number; };
+    hasJustPanned(): boolean;
     setMoveSpeed(moveSpeed: number): this;
     update(): void;
   }
