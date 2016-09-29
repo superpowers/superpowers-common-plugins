@@ -47,7 +47,7 @@ class TextEditorWidget {
   private linkElt = SupClient.html("link", { parent: document.head, rel: "stylesheet" });
 
   constructor(projectClient: SupClient.ProjectClient, clientId: string, textArea: HTMLTextAreaElement, options: TextEditorWidgetOptions) {
-    let extraKeys: { [name: string]: string|Function|boolean } = {
+    const extraKeys: { [name: string]: string|Function|boolean } = {
       "F9": () => { /* Disable line re-ordering */ },
       "Ctrl-T": false,
       "Tab": (cm: any) => {
@@ -162,7 +162,7 @@ class TextEditorWidget {
 
   beforeChange = (instance: CodeMirror.Editor, change: any) => {
     if (change.origin === "setValue" || change.origin === "network") return;
-    let lastText = instance.getDoc().getValue();
+    const lastText = instance.getDoc().getValue();
     if (lastText !== this.texts[this.texts.length - 1]) this.texts.push(lastText);
   };
 
@@ -173,22 +173,21 @@ class TextEditorWidget {
     let undoRedo = false;
     let operationToSend: OT.TextOperation;
     for (let changeIndex = 0; changeIndex < changes.length; changeIndex++) {
-      let change = changes[changeIndex];
-      let origin: string = (<any>change).origin;
+      const change = changes[changeIndex];
 
       // Modification from an other person
-      if (origin === "setValue" || origin === "network") continue;
+      if (change.origin === "setValue" || change.origin === "network") continue;
 
       this.tmpCodeMirrorDoc.setValue(this.texts[changeIndex]);
 
-      let operation = new OT.TextOperation(this.clientId);
+      const operation = new OT.TextOperation(this.clientId);
       for (let line = 0; line < change.from.line; line++) operation.retain(this.tmpCodeMirrorDoc.getLine(line).length + 1);
       operation.retain(change.from.ch);
 
       let offset = 0;
       if (change.removed.length !== 1 || change.removed[0] !== "") {
         for (let index = 0; index < change.removed.length; index++) {
-          let text = change.removed[index];
+          const text = change.removed[index];
           if (index !== 0) {
             operation.delete("\n");
             offset += 1;
@@ -206,13 +205,13 @@ class TextEditorWidget {
         }
       }
 
-      let beforeLength = (operation.ops[0].attributes.amount != null) ? operation.ops[0].attributes.amount : 0;
+      const beforeLength = (operation.ops[0].attributes.amount != null) ? operation.ops[0].attributes.amount : 0;
       operation.retain(this.tmpCodeMirrorDoc.getValue().length - beforeLength - offset);
 
       if (operationToSend == null) operationToSend = operation.clone();
       else operationToSend = operationToSend.compose(operation);
 
-      if (origin === "undo" || origin === "redo") undoRedo = true;
+      if (change.origin === "undo" || change.origin === "redo") undoRedo = true;
     }
 
     this.texts.length = 0;
@@ -293,9 +292,9 @@ class TextEditorWidget {
         break;
 
         case "insert": {
-          let cursor = this.codeMirrorInstance.getDoc().getCursor();
+          const cursor = this.codeMirrorInstance.getDoc().getCursor();
 
-          let texts = op.attributes.text.split("\n");
+          const texts = op.attributes.text.split("\n");
           for (let textIndex = 0; textIndex < texts.length; textIndex++) {
             let text = texts[textIndex];
             if (textIndex !== texts.length - 1) text += "\n";
@@ -320,10 +319,10 @@ class TextEditorWidget {
         break;
 
         case "delete": {
-          let texts = op.attributes.text.split("\n");
+          const texts = op.attributes.text.split("\n");
 
           for (let textIndex = 0; textIndex < texts.length; textIndex++) {
-            let text = texts[textIndex];
+            const text = texts[textIndex];
             if (texts[textIndex + 1] != null) (<any>this.codeMirrorInstance).replaceRange("", { line, ch: cursorPosition }, { line: line + 1, ch: 0 }, origin);
             else (<any>this.codeMirrorInstance).replaceRange("", { line, ch: cursorPosition }, { line, ch: cursorPosition + text.length }, origin);
 
@@ -339,10 +338,10 @@ class TextEditorWidget {
     if (this.undoStack.length === 0) return;
 
     if (this.undoQuantityByAction[this.undoQuantityByAction.length - 1] === 0) this.undoQuantityByAction.pop();
-    let undoQuantityByAction = this.undoQuantityByAction[this.undoQuantityByAction.length - 1];
+    const undoQuantityByAction = this.undoQuantityByAction[this.undoQuantityByAction.length - 1];
 
     for (let i = 0; i < undoQuantityByAction; i++) {
-      let operationToUndo = this.undoStack[this.undoStack.length - 1];
+      const operationToUndo = this.undoStack[this.undoStack.length - 1];
       this.applyOperation(operationToUndo.clone(), "undo", true);
 
       this.undoStack.pop();
@@ -361,9 +360,9 @@ class TextEditorWidget {
   redo() {
     if (this.redoStack.length === 0) return;
 
-    let redoQuantityByAction = this.redoQuantityByAction[this.redoQuantityByAction.length - 1];
+    const redoQuantityByAction = this.redoQuantityByAction[this.redoQuantityByAction.length - 1];
     for (let i = 0; i < redoQuantityByAction; i++) {
-      let operationToRedo = this.redoStack[this.redoStack.length - 1];
+      const operationToRedo = this.redoStack[this.redoStack.length - 1];
       this.applyOperation(operationToRedo.clone(), "undo", true);
 
       this.redoStack.pop();
@@ -413,9 +412,9 @@ export = TextEditorWidget;
 function transformStack(stack: OT.TextOperation[], operation: OT.TextOperation) {
   if (stack.length === 0) return stack;
 
-  let newStack: OT.TextOperation[] = [];
+  const newStack: OT.TextOperation[] = [];
   for (let i = stack.length - 1; i > 0; i--) {
-    let pair = stack[i].transform(operation);
+    const pair = stack[i].transform(operation);
     newStack.push(pair[0]);
     operation = pair[1];
   }

@@ -96,14 +96,14 @@ export default class Camera{
       this.projectionNeedsUpdate = false;
 
       if (this.isOrthographic) {
-        let orthographicCamera = <THREE.OrthographicCamera>this.threeCamera;
+        const orthographicCamera = <THREE.OrthographicCamera>this.threeCamera;
         orthographicCamera.left = -this.orthographicScale * this.cachedRatio / 2;
         orthographicCamera.right = this.orthographicScale * this.cachedRatio / 2;
         orthographicCamera.top = this.orthographicScale / 2;
         orthographicCamera.bottom = -this.orthographicScale / 2;
       }
       else {
-        let perspectiveCamera = <THREE.PerspectiveCamera>this.threeCamera;
+        const perspectiveCamera = <THREE.PerspectiveCamera>this.threeCamera;
         perspectiveCamera.fov = this.fov;
         perspectiveCamera.aspect = this.cachedRatio;
       }

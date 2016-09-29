@@ -226,7 +226,7 @@ export default class Camera3DControls {
 
   update() {
     if (this.moveVector.length() !== 0) {
-      let rotatedMoveVector = this.moveVector.clone();
+      const rotatedMoveVector = this.moveVector.clone();
       rotatedMoveVector.applyQuaternion(this.camera.threeCamera.quaternion).normalize().multiplyScalar(this.moveSpeed);
       this.camera.threeCamera.position.add(rotatedMoveVector);
       this.targetOrbitPivot.add(rotatedMoveVector);

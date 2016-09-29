@@ -4,7 +4,7 @@ import "./links";
 let data: { room: SupCore.Data.Room; };
 let socket: SocketIOClient.Socket;
 
-let ui = {
+const ui = {
   chatHistoryContainer: <HTMLDivElement>document.querySelector(".chat"),
   chatHistory: <HTMLOListElement>document.querySelector(".chat ol"),
   roomUsers: <HTMLUListElement>document.querySelector(".members ul")
@@ -60,16 +60,16 @@ window.addEventListener("message", (event) => {
   }
 });
 
-let appendDaySeparator = (date: Date) => {
-  let separatorElt = document.createElement("li");
+const appendDaySeparator = (date: Date) => {
+  const separatorElt = document.createElement("li");
   separatorElt.className = "day-separator";
 
   separatorElt.appendChild(document.createElement("hr"));
 
-  let dateDiv = document.createElement("div");
+  const dateDiv = document.createElement("div");
   separatorElt.appendChild(dateDiv);
 
-  let dateInnerDiv = document.createElement("div");
+  const dateInnerDiv = document.createElement("div");
   dateInnerDiv.textContent = date.toDateString();
   dateDiv.appendChild(dateInnerDiv);
 
@@ -85,22 +85,22 @@ interface Entry {
 
 const addressRegex = new RegExp("^(http[s]?:\\/\\/(www\\.)?|ftp:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_\+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?");
 function appendHistoryEntry(entry: Entry) {
-  let date = new Date(entry.timestamp);
-  let day = date.toDateString();
+  const date = new Date(entry.timestamp);
+  const day = date.toDateString();
   if (previousDay !== day) {
     appendDaySeparator(date);
     previousDay = day;
   }
 
-  let entryElt = document.createElement("li");
+  const entryElt = document.createElement("li");
 
-  let timestampSpan = document.createElement("span");
+  const timestampSpan = document.createElement("span");
   timestampSpan.className = "timestamp";
-  let time = `00${date.getHours()}`.slice(-2) + ":" + `00${date.getMinutes()}`.slice(-2);
+  const time = `00${date.getHours()}`.slice(-2) + ":" + `00${date.getMinutes()}`.slice(-2);
   timestampSpan.textContent = time;
   entryElt.appendChild(timestampSpan);
 
-  let authorSpan = document.createElement("span");
+  const authorSpan = document.createElement("span");
   authorSpan.className = "author";
   authorSpan.textContent = entry.author;
   entryElt.appendChild(authorSpan);
@@ -108,25 +108,25 @@ function appendHistoryEntry(entry: Entry) {
   const addressTest = addressRegex.exec(entry.text);
   if (addressTest != null) {
     const beforeAddress = entry.text.slice(0, addressTest.index);
-    let beforeTextSpan = document.createElement("span");
+    const beforeTextSpan = document.createElement("span");
     beforeTextSpan.className = "text";
     beforeTextSpan.textContent = `: ${beforeAddress}`;
     entryElt.appendChild(beforeTextSpan);
 
-    let addressTextLink = document.createElement("a");
+    const addressTextLink = document.createElement("a");
     addressTextLink.className = "text";
     addressTextLink.textContent = addressTest[0];
     addressTextLink.href = addressTest[0];
     entryElt.appendChild(addressTextLink);
 
     const afterAddress = entry.text.slice(addressTest.index + addressTest[0].length);
-    let afterTextSpan = document.createElement("span");
+    const afterTextSpan = document.createElement("span");
     afterTextSpan.className = "text";
     afterTextSpan.textContent = afterAddress;
     entryElt.appendChild(afterTextSpan);
 
   } else {
-    let textSpan = document.createElement("span");
+    const textSpan = document.createElement("span");
     textSpan.className = "text";
     textSpan.textContent = `: ${entry.text}`;
     entryElt.appendChild(textSpan);
@@ -142,7 +142,7 @@ onRoomCommands.appendMessage = (entry: Entry) => {
 };
 
 function appendRoomUser(roomUser: { id: string; connectionCount: number; }) {
-  let roomUserElt = document.createElement("li");
+  const roomUserElt = document.createElement("li");
   roomUserElt.dataset["userId"] = roomUser.id;
   roomUserElt.textContent = roomUser.id;
   ui.roomUsers.appendChild(roomUserElt);
@@ -154,7 +154,7 @@ onRoomCommands.join = (roomUser: { id: string; connectionCount: number; }) => {
 
 onRoomCommands.leave = (roomUserId: string) => {
   if (data.room.users.byId[roomUserId] == null) {
-    let roomUserElt = <HTMLLIElement>ui.roomUsers.querySelector(`li[data-user-id=${roomUserId}]`);
+    const roomUserElt = <HTMLLIElement>ui.roomUsers.querySelector(`li[data-user-id=${roomUserId}]`);
     roomUserElt.parentElement.removeChild(roomUserElt);
   }
 };
@@ -172,7 +172,7 @@ function onChatInputKeyDown(event: any) {
 };
 
 function onLinkClicked(event: MouseEvent) {
-  let anchorElt = event.target as HTMLAnchorElement;
+  const anchorElt = event.target as HTMLAnchorElement;
   if (anchorElt.tagName === "A") {
     event.preventDefault();
 
