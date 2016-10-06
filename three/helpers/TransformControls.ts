@@ -239,7 +239,7 @@ export default class TransformControls extends THREE.Object3D {
   };
 
   private onPointerDown = (event: MouseEvent|TouchEvent) => {
-    if (this.target == null || this.dragging || ((event as MouseEvent).button != null && (event as MouseEvent).button !== 0)) return;
+    if (this.target == null || this.dragging || ((event as MouseEvent).button != null && (event as MouseEvent).button !== 0) || event.altKey) return;
 
     const pointer: MouseEvent = (event as any).changedTouches ? (event as any).changedTouches[ 0 ] : event;
 
@@ -491,7 +491,7 @@ export default class TransformControls extends THREE.Object3D {
   };
 
   private onPointerUp = (event: MouseEvent) => {
-    if (event.button != null && event.button !== 0) return;
+    if (event.button != null && event.button !== 0 || event.altKey) return;
 
     if (this.dragging && (this.axis !== null)) {
       this.mouseUpEvent.mode = this.mode;
