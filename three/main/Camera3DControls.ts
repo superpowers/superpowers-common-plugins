@@ -6,7 +6,7 @@ const tmpEuler = new THREE.Euler();
 const upVector = new THREE.Vector3(0, 1, 0);
 
 const lerpFactor = 0.3;
-const minOrbitRadius = 0.5;
+const minOrbitRadius = 0.001;
 const maxOrbitRadius = 500;
 const initialOrbitRadius = 10;
 
@@ -210,7 +210,8 @@ export default class Camera3DControls {
     if (!this.enabled) return this;
 
     this.targetOrbitPivot.copy(position);
-    this.targetOrbitRadius = Math.max(this.targetOrbitRadius, initialOrbitRadius);
+    if (radius != null) this.targetOrbitRadius = Math.min(Math.max(radius, minOrbitRadius), maxOrbitRadius);
+    else this.targetOrbitRadius = Math.max(this.targetOrbitRadius, initialOrbitRadius);
     return this;
   }
 
