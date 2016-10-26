@@ -16,6 +16,7 @@ const rotateSpeed = 0.02;
 const zoomingSpeed = 1.2;
 
 export default class Camera3DControls {
+  private enabled = true;
   private moveSpeed = 0.3;
 
   private wantToPan = false;
@@ -78,6 +79,7 @@ export default class Camera3DControls {
   }
 
   private onMouseDown = (event: MouseEvent) => {
+    if (!this.enabled) return;
     if (this.wantToPan || this.isOrbiting) return;
 
     if (event.button === 2) {
@@ -103,6 +105,8 @@ export default class Camera3DControls {
   };
 
   private onMouseMove = (event: MouseEvent) => {
+    if (!this.enabled) return;
+
     if (this.wantToPan) {
       this.hasMovedWhilePanning = true;
 
@@ -121,6 +125,8 @@ export default class Camera3DControls {
   };
 
   private onWheel = (event: WheelEvent) => {
+    if (!this.enabled) return;
+
     if (event.deltaY > 0) this.targetOrbitRadius *= zoomingSpeed;
     else if (event.deltaY < 0) this.targetOrbitRadius /= zoomingSpeed;
     else return;
@@ -129,6 +135,7 @@ export default class Camera3DControls {
   };
 
   private onKeyDown = (event: KeyboardEvent) => {
+    if (!this.enabled) return;
     if (event.ctrlKey || event.altKey || event.metaKey) return;
 
     if (event.keyCode === 87 /* W */ || event.keyCode === 90 /* Z */) {
@@ -179,7 +186,7 @@ export default class Camera3DControls {
     }
   };
 
-  private onBlur = (event: Event) => {
+  private onBlur = () => {
     this.moveVector.set(0, 0, 0);
     this.wantToPan = false;
 
@@ -191,7 +198,17 @@ export default class Camera3DControls {
     }
   };
 
-  resetOrbitPivot(position: THREE.Vector3) {
+  setEnabled(enabled: boolean) {
+    this.enabled = enabled;
+
+    if (!this.enabled) this.onBlur();
+
+    return this;
+  }
+
+  resetOrbitPivot(position: THREE.Vector3, radius?: number) {
+    if (!this.enabled) return this;
+
     this.targetOrbitPivot.copy(position);
     this.targetOrbitRadius = Math.max(this.targetOrbitRadius, initialOrbitRadius);
     return this;
@@ -203,6 +220,8 @@ export default class Camera3DControls {
   }
 
   setPosition(position: THREE.Vector3) {
+    if (!this.enabled) return this;
+
     tmpVector3.x = this.orbitRadius * Math.sin(this.targetPhi) * Math.sin(this.targetTheta);
     tmpVector3.y = this.orbitRadius * Math.cos(this.targetPhi);
     tmpVector3.z = this.orbitRadius * Math.sin(this.targetPhi) * Math.cos(this.targetTheta);
@@ -215,6 +234,8 @@ export default class Camera3DControls {
   getPosition() { return this.camera.threeCamera.position; }
 
   setOrientation(orientation: { theta: number; phi: number; gamma: number; }) {
+    if (!this.enabled) return this;
+
     this.targetTheta = orientation.theta;
     this.targetPhi = orientation.phi;
     this.targetGamma = orientation.gamma;

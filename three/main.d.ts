@@ -52,6 +52,7 @@ declare namespace SupTHREE {
   export class Camera3DControls {
     constructor(root: THREE.Object3D, camera: Camera, canvas: HTMLCanvasElement);
     resetOrbitPivot(position: THREE.Vector3): this;
+    setEnabled(enabled: boolean): this;
     setPosition(position: THREE.Vector3): this;
     getPosition(): THREE.Vector3;
     setOrientation(orientation: { theta: number; phi: number; gamma: number; }): this;
