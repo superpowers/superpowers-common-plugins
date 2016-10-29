@@ -12,5 +12,8 @@
   },
   "dependencies": {
     "marked": "^0.3.5"
+  },
+  "devDependencies": {
+    "@types/marked": "0.0.28"
   }
 }
