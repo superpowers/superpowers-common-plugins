@@ -1,4 +1,5 @@
 /// <reference path="./operational-transform.d.ts" />
+/// <reference types="codemirror" />
 
 interface EditCallback {
   (text: string, origin: string): void;
