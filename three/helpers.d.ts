@@ -1,3 +1,5 @@
+/// <reference types="three" />
+
 declare namespace SupTHREE {
   export class GridHelper {
     constructor(root: THREE.Object3D, size: number, step: number);

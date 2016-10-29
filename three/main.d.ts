@@ -1,3 +1,5 @@
+/// <reference types="three" />
+
 declare namespace SupTHREE {
   export function createWebGLRenderer(params?: THREE.WebGLRendererParameters): THREE.WebGLRenderer;
 
