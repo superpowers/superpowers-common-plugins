@@ -55,7 +55,7 @@ export default class SelectionBoxRenderer {
       }
     });
 
-    const size = box.size();
+    const size = box.getSize();
     const thickness = 0.1;
     this.mesh.scale.copy(size).add(new THREE.Vector3(thickness, thickness, thickness));
     this.mesh.updateMatrixWorld(false);

@@ -14,9 +14,7 @@ export default class GridHelper {
 
     const actualSize = Math.ceil(size / step) * step;
 
-    this.gridHelper = new THREE.GridHelper(actualSize, step);
-    this.gridHelper.color1.setRGB(1, 1, 1);
-    this.gridHelper.color2.setRGB(1, 1, 1);
+    this.gridHelper = new THREE.GridHelper(actualSize, step, 0xffffff, 0xffffff);
     this.gridHelper.material.transparent = true;
     this.gridHelper.material.opacity = 0.25;
 

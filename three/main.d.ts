@@ -1,5 +1,3 @@
-/// <reference path="typings/threejs/three.d.ts" />
-
 declare namespace SupTHREE {
   export function createWebGLRenderer(params?: THREE.WebGLRendererParameters): THREE.WebGLRenderer;
 
