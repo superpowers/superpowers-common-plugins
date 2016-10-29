@@ -1,4 +1,3 @@
-/// <reference path="typings/codemirror/codemirror.d.ts" />
 /// <reference path="./operational-transform.d.ts" />
 
 interface EditCallback {

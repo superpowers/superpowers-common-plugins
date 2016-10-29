@@ -14,6 +14,7 @@
     "operational-transform": "^0.2.3"
   },
   "devDependencies": {
+    "@types/codemirror": "0.0.34",
     "codemirror": "^5.16.0"
   }
 }

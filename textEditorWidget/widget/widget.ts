@@ -1,10 +1,14 @@
+/// <reference path="../widget.d.ts" />
+
 import TextEditorSettingsResource from "../data/TextEditorSettingsResource";
 import * as textEditorUserSettings from "../data/textEditorUserSettings";
 
 import * as OT from "operational-transform";
 
+import * as CodeMirror from "codemirror";
+(window as any).CodeMirror = CodeMirror;
+
 /* tslint:disable */
-(<any>window).CodeMirror = require("codemirror");
 require("codemirror/addon/search/search");
 require("codemirror/addon/search/searchcursor");
 require("codemirror/addon/edit/closebrackets");
