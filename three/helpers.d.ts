@@ -20,7 +20,7 @@ declare namespace SupTHREE {
     rotationSnap: number;
     root: THREE.Object3D;
 
-    constructor(scene: THREE.Scene, threeCamera: THREE.Camera, canvas: HTMLCanvasElement);
+    constructor(scene: THREE.Scene, threeCamera: SupTHREE.Camera, canvas: HTMLCanvasElement);
     dispose(): void;
 
     setVisible(visible: boolean): this;

@@ -30,6 +30,7 @@ declare namespace SupTHREE {
     setOrthographicScale(orthographicScale: number): this;
     getOrthographicScale(): number;
     setViewport(x: number, y: number, width: number, height: number): this;
+    getViewport(): { x: number; y: number; width: number; height: number; };
     setDepth(depth: number): this;
     setNearClippingPlane(nearClippingPlane: number): this;
     setFarClippingPlane(farClippingPlane: number): this;

@@ -69,7 +69,7 @@ export default class TransformControls extends THREE.Object3D {
   private mouseUpEvent = { type: "mouseUp", mode: this.mode, target: null as any };
   private objectChangeEvent = { type: "objectChange", target: null as any };
 
-  constructor(scene: THREE.Scene, private camera: THREE.Camera, private domElement: HTMLElement) {
+  constructor(scene: THREE.Scene, private camera: SupTHREE.Camera, private domElement: HTMLElement) {
     super();
 
     scene.add(this);
@@ -220,9 +220,9 @@ export default class TransformControls extends THREE.Object3D {
     const negativeScaleFixMatrix = new THREE.Matrix4().makeScale(scaleX, scaleY, scaleZ);
     worldRotation.setFromRotationMatrix(tempMatrix.extractRotation(this.root.matrixWorld).multiply(negativeScaleFixMatrix));
 
-    this.camera.updateMatrixWorld(false);
-    camPosition.setFromMatrixPosition(this.camera.matrixWorld);
-    camRotation.setFromRotationMatrix(tempMatrix.extractRotation(this.camera.matrixWorld));
+    this.camera.threeCamera.updateMatrixWorld(false);
+    camPosition.setFromMatrixPosition(this.camera.threeCamera.matrixWorld);
+    camRotation.setFromRotationMatrix(tempMatrix.extractRotation(this.camera.threeCamera.matrixWorld));
 
     const scale = worldPosition.distanceTo(camPosition) / 8 * this.size;
     this.position.copy(worldPosition);
@@ -504,11 +504,11 @@ export default class TransformControls extends THREE.Object3D {
 
   private intersectObjects(pointer: MouseEvent, objects: THREE.Object3D[]) {
     const rect = this.domElement.getBoundingClientRect();
-    const x = (pointer.clientX - rect.left) / rect.width;
-    const y = (pointer.clientY - rect.top) / rect.height;
+    const viewport = this.camera.getViewport();
 
-    pointerVector.set((x * 2) - 1, - (y * 2) + 1);
-    ray.setFromCamera(pointerVector, this.camera);
+    pointerVector.x =  ((pointer.clientX - rect.left) / rect.width * 2 - 1) / viewport.width;
+    pointerVector.y = -((pointer.clientY - rect.top) / rect.height * 2 - 1) / viewport.height;
+    ray.setFromCamera(pointerVector, this.camera.threeCamera);
 
     const intersections = ray.intersectObjects(objects, true);
     return intersections[0];

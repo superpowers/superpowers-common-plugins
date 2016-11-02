@@ -72,6 +72,8 @@ export default class Camera{
     return this;
   }
 
+  getViewport() { return { x: this.viewport.x, y: this.viewport.y, width: this.viewport.width, height: this.viewport.height }; }
+
   setDepth(depth: number) {
     this.depth = depth;
     return this;
