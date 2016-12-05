@@ -48,8 +48,7 @@ class GizmoMaterial extends THREE.MeshBasicMaterial {
   }
 }
 
-
-const pickerMaterial = new GizmoMaterial({ visible: false, transparent: false });
+const pickerMaterial = new GizmoMaterial({ visible: false, transparent: false, side: THREE.DoubleSide });
 
 export abstract class TransformGizmo extends THREE.Object3D {
   protected handlesRoot: THREE.Object3D;
@@ -180,9 +179,9 @@ export class TransformGizmoTranslate extends TransformGizmo {
     this.setupGizmo("Z", new THREE.Mesh(lineGeometry, new GizmoMaterial()), this.handlesRoot, [ 0, 0, 0.5 ], [ Math.PI / 2, 0, 0 ], "blue");
 
     const handlePlaneGeometry = new THREE.PlaneBufferGeometry(0.29, 0.29);
-    this.setupGizmo("XY", new THREE.Mesh(handlePlaneGeometry, new GizmoMaterial({ opacity: 0.5 })), this.handlesRoot, [ 0.15, 0.15, 0 ], null, "yellow");
-    this.setupGizmo("YZ", new THREE.Mesh(handlePlaneGeometry, new GizmoMaterial({ opacity: 0.5 })), this.handlesRoot, [ 0, 0.15, 0.15 ], [ 0, Math.PI / 2, 0 ], "cyan");
-    this.setupGizmo("XZ", new THREE.Mesh(handlePlaneGeometry, new GizmoMaterial({ opacity: 0.5 })), this.handlesRoot, [ 0.15, 0, 0.15 ], [ - Math.PI / 2, 0, 0 ], "magenta");
+    this.setupGizmo("XY", new THREE.Mesh(handlePlaneGeometry, new GizmoMaterial({ opacity: 0.5, side: THREE.DoubleSide })), this.handlesRoot, [ 0.15, 0.15, 0 ], null, "yellow");
+    this.setupGizmo("YZ", new THREE.Mesh(handlePlaneGeometry, new GizmoMaterial({ opacity: 0.5, side: THREE.DoubleSide })), this.handlesRoot, [ 0, 0.15, 0.15 ], [ 0, Math.PI / 2, 0 ], "cyan");
+    this.setupGizmo("XZ", new THREE.Mesh(handlePlaneGeometry, new GizmoMaterial({ opacity: 0.5, side: THREE.DoubleSide })), this.handlesRoot, [ 0.15, 0, 0.15 ], [ - Math.PI / 2, 0, 0 ], "magenta");
 
     this.setupGizmo("XYZ", new THREE.Mesh(new THREE.OctahedronGeometry(0.1, 0), new GizmoMaterial({ opacity: 0.8 })), this.handlesRoot, [ 0, 0, 0 ], [ 0, 0, 0 ], "white");
 
