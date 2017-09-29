@@ -40,4 +40,13 @@ declare namespace SupTHREE {
     move(target: THREE.Object3D): this;
     hide(): this;
   }
+
+  type ColorName = "white"|"red"|"green"|"blue"|"yellow"|"cyan"|"magenta";
+  export class GizmoMaterial extends THREE.MeshBasicMaterial {
+    constructor(parameters?: THREE.MeshBasicMaterialParameters);
+
+    setColor(colorName: ColorName): void;
+    highlight(highlighted: boolean): void;
+    setDisabled(disabled: boolean): void;
+  }
 }

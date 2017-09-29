@@ -11,7 +11,7 @@ const colors: { [colorName: string]: { enabled: number; disabled: number } } = {
   magenta: { enabled: 0xff00ff, disabled: 0x484848 }
 };
 
-class GizmoMaterial extends THREE.MeshBasicMaterial {
+export class GizmoMaterial extends THREE.MeshBasicMaterial {
   private enabledColor: THREE.Color;
   private disabledColor: THREE.Color;
   private oldOpacity: number;
