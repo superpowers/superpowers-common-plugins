@@ -5,6 +5,7 @@ const tmpQuaternion = new THREE.Quaternion();
 const tmpEuler = new THREE.Euler();
 const upVector = new THREE.Vector3(0, 1, 0);
 
+const epsilon = 0.001;
 const lerpFactor = 0.3;
 const minOrbitRadius = 0.001;
 const maxOrbitRadius = 500;
@@ -257,9 +258,14 @@ export default class Camera3DControls {
     this.orbitPivot.lerp(this.targetOrbitPivot, lerpFactor);
     this.orbitRadius += (this.targetOrbitRadius - this.orbitRadius) * lerpFactor;
 
-    this.theta += (this.targetTheta - this.theta) * lerpFactor;
-    this.phi += (this.targetPhi - this.phi) * lerpFactor;
-    this.gamma += (this.targetGamma - this.gamma) * lerpFactor;
+    if (Math.abs(this.targetTheta - this.theta) > epsilon) this.theta += (this.targetTheta - this.theta) * lerpFactor;
+    else this.theta = this.targetTheta;
+
+    if (Math.abs(this.targetPhi - this.phi) > epsilon) this.phi += (this.targetPhi - this.phi) * lerpFactor;
+    else this.phi = this.targetPhi;
+
+    if (Math.abs(this.targetGamma - this.gamma) > epsilon) this.gamma += (this.targetGamma - this.gamma) * lerpFactor;
+    else this.gamma = this.targetGamma;
 
     tmpVector3.x = this.orbitRadius * Math.sin(this.phi) * Math.sin(this.theta);
     tmpVector3.y = this.orbitRadius * Math.cos(this.phi);
