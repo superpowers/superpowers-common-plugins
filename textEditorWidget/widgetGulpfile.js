@@ -30,4 +30,4 @@ gulp.task("copy-cm-modes", () => gulp.src([ "node_modules/codemirror/mode/**/*" 
 gulp.task("copy-cm-themes", () => gulp.src([ "node_modules/codemirror/theme/**/*" ]).pipe(gulp.dest("public/codemirror/theme")));
 
 // All
-gulp.task("default", tasks);
+gulp.task("default", gulp.parallel(tasks));

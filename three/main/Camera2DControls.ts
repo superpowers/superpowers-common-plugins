@@ -29,11 +29,11 @@ export default class Camera2DControls {
 
   private onMouseDown = (event: MouseEvent) => {
     if (event.button === 1 || (event.button === 0 && event.altKey)) this.isMoving = true;
-  };
+  }
 
   private onMouseUp = (event: MouseEvent) => {
     if (event.button === 0 || event.button === 1) this.isMoving = false;
-  };
+  }
 
   private onMouseMove = (event: MouseEvent) => {
     const rect = this.canvas.getBoundingClientRect();
@@ -49,7 +49,7 @@ export default class Camera2DControls {
       this.camera.threeCamera.updateMatrixWorld(false);
       if (this.options.moveCallback != null) this.options.moveCallback();
     }
-  };
+  }
 
   private onWheel = (event: WheelEvent) => {
     if (event.ctrlKey) return;
@@ -60,7 +60,7 @@ export default class Camera2DControls {
     else return;
 
     this.changeOrthographicScale(newOrthographicScale, this.mousePosition);
-  };
+  }
 
   private onKeyPress = (event: KeyboardEvent) => {
     if (SupClient.Dialogs.BaseDialog.activeDialog != null) return;
@@ -73,7 +73,7 @@ export default class Camera2DControls {
       const newOrthographicScale = Math.min(this.options.zoomMax, this.camera.orthographicScale * this.multiplier * this.options.zoomSpeed);
       this.changeOrthographicScale(newOrthographicScale);
     }
-  };
+  }
 
   private changeOrthographicScale(newOrthographicScale: number, mousePosition = { x: 0, y: 0 }) {
     const startPosition = new THREE.Vector3(mousePosition.x, mousePosition.y, 0).unproject(this.camera.threeCamera);

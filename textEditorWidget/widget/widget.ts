@@ -137,7 +137,7 @@ class TextEditorWidget {
 
     this.codeMirrorInstance.getWrapperElement().addEventListener("contextmenu", (event) => {
       event.preventDefault();
-      menu.popup(win);
+      menu.popup({ window: win });
       return false;
     });
   }
@@ -168,7 +168,7 @@ class TextEditorWidget {
     if (change.origin === "setValue" || change.origin === "network") return;
     const lastText = instance.getDoc().getValue();
     if (lastText !== this.texts[this.texts.length - 1]) this.texts.push(lastText);
-  };
+  }
 
   edit = (instance: CodeMirror.Editor, changes: CodeMirror.EditorChange[]) => {
     if (this.editCallback != null)
@@ -249,7 +249,7 @@ class TextEditorWidget {
       if (this.pendingOperation != null) this.pendingOperation = this.pendingOperation.compose(operationToSend);
       else this.pendingOperation = operationToSend;
     }
-  };
+  }
 
   receiveEditText(operationData: OperationData) {
     if (this.clientId === operationData.userId) {
@@ -396,10 +396,10 @@ class TextEditorWidget {
     this.codeMirrorInstance.setOption("indentUnit", resource.pub.tabSize);
     this.codeMirrorInstance.setOption("indentWithTabs", !resource.pub.softTab);
     this.useSoftTab = resource.pub.softTab;
-  };
+  }
 
   onResourceEdited = (resourceId: string, command: string, propertyName: string) => {
-    switch(propertyName) {
+    switch (propertyName) {
       case "tabSize":
         this.codeMirrorInstance.setOption("tabSize", this.textEditorResource.pub.tabSize);
         this.codeMirrorInstance.setOption("indentUnit", this.textEditorResource.pub.tabSize);
@@ -409,7 +409,7 @@ class TextEditorWidget {
         this.codeMirrorInstance.setOption("indentWithTabs", !this.textEditorResource.pub.softTab);
         break;
     }
-  };
+  }
 }
 export = TextEditorWidget;
 

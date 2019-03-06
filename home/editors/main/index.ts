@@ -18,14 +18,14 @@ function start() {
   // Chat
   document.querySelector(".chat-input textarea").addEventListener("keydown", onChatInputKeyDown);
   document.querySelector(".chat").addEventListener("click", onLinkClicked);
-};
+}
 
 function onConnected() {
   data = <any>{};
   // FIXME Add support in ProjectClient?
   socket.emit("sub", "rooms", "home", onRoomReceived);
   socket.on("edit:rooms", onRoomEdited);
-};
+}
 
 function onRoomReceived(err: string, room: any) {
   data.room = new SupCore.Data.Room(room);
@@ -34,17 +34,17 @@ function onRoomReceived(err: string, room: any) {
 
   for (const entry of data.room.pub.history) appendHistoryEntry(entry);
   scrollToBottom();
-};
+}
 
 let onRoomCommands: any = {};
 function onRoomEdited(id: string, command: string, ...args: any[]) {
   Object.getPrototypeOf(data.room)[`client_${command}`].apply(data.room, args);
   if (onRoomCommands[command] != null) onRoomCommands[command].apply(data.room, args);
-};
+}
 
 function scrollToBottom() {
   setTimeout(() => { ui.chatHistoryContainer.scrollTop = ui.chatHistoryContainer.scrollHeight; }, 0);
-};
+}
 
 // Firefox 41 loses the scroll position when going back to the tab
 // so we'll manually restore it when the tab is activated
@@ -133,7 +133,7 @@ function appendHistoryEntry(entry: Entry) {
   }
 
   ui.chatHistory.appendChild(entryElt);
-};
+}
 
 onRoomCommands.appendMessage = (entry: Entry) => {
   if (window.parent != null) window.parent.postMessage({ type: "chat", content: `${entry.author}: ${entry.text}` }, window.location.origin);
@@ -146,7 +146,7 @@ function appendRoomUser(roomUser: { id: string; connectionCount: number; }) {
   roomUserElt.dataset["userId"] = roomUser.id;
   roomUserElt.textContent = roomUser.id;
   ui.roomUsers.appendChild(roomUserElt);
-};
+}
 
 onRoomCommands.join = (roomUser: { id: string; connectionCount: number; }) => {
   if (roomUser.connectionCount === 1) appendRoomUser(roomUser);
@@ -169,7 +169,7 @@ function onChatInputKeyDown(event: any) {
   });
 
   this.value = "";
-};
+}
 
 function onLinkClicked(event: MouseEvent) {
   const anchorElt = event.target as HTMLAnchorElement;

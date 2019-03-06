@@ -99,16 +99,16 @@ export default class TransformControls extends THREE.Object3D {
     this.visible = this.externVisible;
     this.update();
     return this;
-  };
+  }
 
   detach() {
     this.target = null;
     this.visible = false;
     this.axis = null;
     return this;
-  };
+  }
 
-  getMode() { return this.mode; };
+  getMode() { return this.mode; }
 
   setMode(mode: "translate"|"rotate"|"scale"|"resize") {
     this.mode = mode;
@@ -119,7 +119,7 @@ export default class TransformControls extends THREE.Object3D {
     this.update();
     this.dispatchEvent(this.changeEvent);
     return this;
-  };
+  }
 
   setSize(size: number) {
     this.size = size;
@@ -128,7 +128,7 @@ export default class TransformControls extends THREE.Object3D {
     this.update();
     this.dispatchEvent(this.changeEvent);
     return this;
-  };
+  }
 
   setSpace(space: string) {
     this.space = space;
@@ -137,7 +137,7 @@ export default class TransformControls extends THREE.Object3D {
     this.update();
     this.dispatchEvent(this.changeEvent);
     return this;
-  };
+  }
 
   enable() {
     if (!this.disabled) return this;
@@ -236,7 +236,7 @@ export default class TransformControls extends THREE.Object3D {
     if (!this.disabled) this.gizmo[this.mode].highlight(this.axis);
 
     this.updateMatrixWorld(true);
-  };
+  }
 
   private onPointerDown = (event: MouseEvent|TouchEvent) => {
     if (this.target == null || this.dragging || ((event as MouseEvent).button != null && (event as MouseEvent).button !== 0) || event.altKey) return;
@@ -276,7 +276,7 @@ export default class TransformControls extends THREE.Object3D {
     }
 
     this.dragging = true;
-  };
+  }
 
   private onPointerHover = (event: MouseEvent|TouchEvent) => {
     if (this.target == null || this.dragging || ((event as MouseEvent).button != null && (event as MouseEvent).button !== 0)) return;
@@ -296,7 +296,7 @@ export default class TransformControls extends THREE.Object3D {
       this.update();
       this.dispatchEvent(this.changeEvent);
     }
-  };
+  }
 
   private onPointerMove = (event: MouseEvent|TouchEvent) => {
     if (this.target == null || this.axis == null || !this.dragging || ((event as MouseEvent).button != null && (event as MouseEvent).button !== 0)) return;
@@ -488,7 +488,7 @@ export default class TransformControls extends THREE.Object3D {
     this.update(false);
     this.dispatchEvent(this.changeEvent);
     this.dispatchEvent(this.objectChangeEvent);
-  };
+  }
 
   private onPointerUp = (event: MouseEvent) => {
     if (event.button != null && event.button !== 0 || event.altKey) return;
@@ -500,7 +500,7 @@ export default class TransformControls extends THREE.Object3D {
 
     this.dragging = false;
     this.onPointerHover(event);
-  };
+  }
 
   private intersectObjects(pointer: MouseEvent, objects: THREE.Object3D[]) {
     const rect = this.domElement.getBoundingClientRect();

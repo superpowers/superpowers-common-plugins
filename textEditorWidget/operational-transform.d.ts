@@ -17,7 +17,7 @@ declare module "operational-transform" {
 
     constructor(userId?: string);
     serialize(): OperationData;
-    deserialize(data: OperationData): void;
+    deserialize(data: OperationData): boolean;
     retain(amount: number): void;
     insert(text: string): void;
     delete(text: string): void;

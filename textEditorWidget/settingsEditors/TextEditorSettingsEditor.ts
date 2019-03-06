@@ -64,12 +64,12 @@ export default class TextEditorSettingsEditor {
 
     this.tabSizeField.value = resource.pub.tabSize.toString();
     this.softTabField.checked = resource.pub.softTab;
-  };
+  }
 
   onResourceEdited = (resourceId: string, command: string, propertyName: string) => {
-    switch(propertyName) {
+    switch (propertyName) {
       case "tabSize": this.tabSizeField.value = this.resource.pub.tabSize.toString(); break;
       case "softTab": this.softTabField.checked = this.resource.pub.softTab; break;
     }
-  };
+  }
 }

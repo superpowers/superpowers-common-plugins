@@ -19,4 +19,4 @@ makeBrowserify("./main/main.js", "./public/", "main");
 
 
 // All
-gulp.task("default", tasks);
+gulp.task("default", gulp.parallel(tasks));

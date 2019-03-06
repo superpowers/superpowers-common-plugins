@@ -110,7 +110,7 @@ export abstract class TransformGizmo extends THREE.Object3D {
         child.scale.set(1, 1, 1);
       }
     });
-  };
+  }
 
   highlight(axis: string) {
     this.traverse((child: any) => {
@@ -118,7 +118,7 @@ export abstract class TransformGizmo extends THREE.Object3D {
         child.material.highlight(child.name === axis);
       }
     });
-  };
+  }
 
   setDisabled(disabled: boolean) {
     this.traverse((child: any) => {
@@ -223,7 +223,7 @@ export class TransformGizmoTranslate extends TransformGizmo {
         this.activePlane = this.planes[axis];
         break;
     }
-  };
+  }
 }
 
 export class TransformGizmoRotate extends TransformGizmo {

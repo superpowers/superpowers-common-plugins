@@ -103,7 +103,7 @@ export default class Camera3DControls {
       this.phi = Math.atan2(Math.sqrt(tmpVector3.x * tmpVector3.x + tmpVector3.z * tmpVector3.z), tmpVector3.y);
       this.targetPhi = this.phi;
     }
-  };
+  }
 
   private onMouseMove = (event: MouseEvent) => {
     if (!this.enabled) return;
@@ -123,7 +123,7 @@ export default class Camera3DControls {
 
       this.targetPhi = Math.max(0.001, Math.min(Math.PI - 0.001, this.targetPhi));
     }
-  };
+  }
 
   private onWheel = (event: WheelEvent) => {
     if (!this.enabled) return;
@@ -133,7 +133,7 @@ export default class Camera3DControls {
     else return;
 
     this.targetOrbitRadius = Math.min(Math.max(this.targetOrbitRadius, minOrbitRadius), maxOrbitRadius);
-  };
+  }
 
   private onKeyDown = (event: KeyboardEvent) => {
     if (!this.enabled) return;
@@ -156,7 +156,7 @@ export default class Camera3DControls {
     } else if (event.keyCode === 75 /* K */) {
       this.targetGamma = Math.max(this.targetGamma - rotateSpeed, -Math.PI / 2);
     }
-  };
+  }
 
   private onKeyUp = (event: KeyboardEvent) => {
     if (event.keyCode === 87 /* W */ || event.keyCode === 90 /* Z */) {
@@ -172,7 +172,7 @@ export default class Camera3DControls {
     } else if (event.keyCode === 16 /* SHIFT */) {
       this.moveVector.y = 0;
     }
-  };
+  }
 
   private onMouseUp = (event: MouseEvent) => {
     if (event.button === 2) {
@@ -185,7 +185,7 @@ export default class Camera3DControls {
       else if ((document as any).webkitExitPointerLock) (document as any).webkitExitPointerLock();
       else if ((document as any).mozExitPointerLock) (document as any).mozExitPointerLock();
     }
-  };
+  }
 
   private onBlur = () => {
     this.moveVector.set(0, 0, 0);
@@ -197,7 +197,7 @@ export default class Camera3DControls {
       else if ((document as any).webkitExitPointerLock) (document as any).webkitExitPointerLock();
       else if ((document as any).mozExitPointerLock) (document as any).mozExitPointerLock();
     }
-  };
+  }
 
   setEnabled(enabled: boolean) {
     this.enabled = enabled;

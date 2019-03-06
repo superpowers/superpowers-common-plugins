@@ -23,7 +23,7 @@ export default class Camera{
     this.cachedRatio = (this.canvas.clientWidth * this.viewport.width) / (this.canvas.clientHeight * this.viewport.height);
     this.projectionNeedsUpdate = true;
     return this;
-  };
+  }
 
   setOrthographicMode(isOrthographic: boolean) {
     this.isOrthographic = isOrthographic;
