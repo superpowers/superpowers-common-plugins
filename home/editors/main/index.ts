@@ -22,7 +22,7 @@ function start() {
 
 function onConnected() {
   data = <any>{};
-  // FIXME Add support in ProjectClient?
+  // FIXME: Add support in ProjectClient?
   socket.emit("sub", "rooms", "home", onRoomReceived);
   socket.on("edit:rooms", onRoomEdited);
 }

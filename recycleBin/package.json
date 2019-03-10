@@ -1,0 +1,13 @@
+{
+  "name": "superpowers-common-recycle-bin-plugin",
+  "description": "Recycle bin plugin for Superpowers, the HTML5 app for real-time collaborative projects",
+  "version": "1.0.0",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/superpowers/superpowers-common-plugins.git"
+  },
+  "scripts": {
+    "build": "gulp --gulpfile=../../../../../scripts/pluginGulpfile.js --cwd=."
+  }
+}
