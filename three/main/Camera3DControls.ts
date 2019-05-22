@@ -13,7 +13,8 @@ const initialOrbitRadius = 10;
 
 const panningSpeed = 0.005;
 const orbitingSpeed = 0.008;
-const rotateSpeed = 0.02;
+const orbitingThetaSpeed = Math.PI / 56;
+const rotateGammaSpeed = 0.02;
 const zoomingSpeed = 1.2;
 
 export default class Camera3DControls {
@@ -24,6 +25,8 @@ export default class Camera3DControls {
   private hasMovedWhilePanning = false;
 
   private isOrbiting = false;
+  private isOrbitingThetaLeft = false;
+  private isOrbitingThetaRight = false;
   private orbitPivot: THREE.Vector3;
   private targetOrbitPivot: THREE.Vector3;
 
@@ -152,9 +155,13 @@ export default class Camera3DControls {
     } else if (event.keyCode === 16 /* SHIFT */) {
       this.moveVector.y = -1;
     } else if (event.keyCode === 74 /* J */) {
-      this.targetGamma = Math.min(this.targetGamma + rotateSpeed, Math.PI / 2);
+      this.targetGamma = Math.min(this.targetGamma + rotateGammaSpeed, Math.PI / 2);
     } else if (event.keyCode === 75 /* K */) {
-      this.targetGamma = Math.max(this.targetGamma - rotateSpeed, -Math.PI / 2);
+      this.targetGamma = Math.max(this.targetGamma - rotateGammaSpeed, -Math.PI / 2);
+    } else if (event.keyCode === 33 /* Page Up */) {
+      this.isOrbitingThetaLeft = true;
+    } else if (event.keyCode === 34 /* Page Down */) {
+      this.isOrbitingThetaRight = true;
     }
   }
 
@@ -171,6 +178,10 @@ export default class Camera3DControls {
       this.moveVector.y = 0;
     } else if (event.keyCode === 16 /* SHIFT */) {
       this.moveVector.y = 0;
+    } else if (event.keyCode === 33 /* Page Up */) {
+      this.isOrbitingThetaLeft = false;
+    } else if (event.keyCode === 34 /* Page Down */) {
+      this.isOrbitingThetaRight = false;
     }
   }
 
@@ -197,6 +208,9 @@ export default class Camera3DControls {
       else if ((document as any).webkitExitPointerLock) (document as any).webkitExitPointerLock();
       else if ((document as any).mozExitPointerLock) (document as any).mozExitPointerLock();
     }
+
+    this.isOrbitingThetaLeft = false;
+    this.isOrbitingThetaRight = false;
   }
 
   setEnabled(enabled: boolean) {
@@ -257,6 +271,9 @@ export default class Camera3DControls {
 
     this.orbitPivot.lerp(this.targetOrbitPivot, lerpFactor);
     this.orbitRadius += (this.targetOrbitRadius - this.orbitRadius) * lerpFactor;
+
+    if (this.isOrbitingThetaLeft) this.targetTheta += orbitingThetaSpeed;
+    if (this.isOrbitingThetaRight) this.targetTheta -= orbitingThetaSpeed;
 
     if (Math.abs(this.targetTheta - this.theta) > epsilon) this.theta += (this.targetTheta - this.theta) * lerpFactor;
     else this.theta = this.targetTheta;
