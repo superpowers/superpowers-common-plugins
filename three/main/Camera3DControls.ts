@@ -230,6 +230,10 @@ export default class Camera3DControls {
     return this;
   }
 
+  getOrbitPivot() {
+    return { position: this.targetOrbitPivot.clone(), radius: this.targetOrbitRadius };
+  }
+
   setMoveSpeed(moveSpeed: number) {
     this.moveSpeed = moveSpeed;
     return this;

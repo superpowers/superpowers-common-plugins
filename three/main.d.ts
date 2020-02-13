@@ -54,6 +54,7 @@ declare namespace SupTHREE {
     constructor(root: THREE.Object3D, camera: Camera, canvas: HTMLCanvasElement);
     setEnabled(enabled: boolean): this;
     resetOrbitPivot(position: THREE.Vector3, radius?: number): this;
+    getOrbitPivot(): { position: THREE.Vector3, radius: number };
     setPosition(position: THREE.Vector3): this;
     getPosition(): THREE.Vector3;
     setOrientation(orientation: { theta: number; phi: number; gamma: number; }): this;
