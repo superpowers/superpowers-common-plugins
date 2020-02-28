@@ -2,8 +2,8 @@
 
 declare namespace SupTHREE {
   export class GridHelper {
-    constructor(root: THREE.Object3D, size: number, step: number);
-    setup(size: number, step: number): this;
+    constructor(root: THREE.Object3D, size: number, step: number, opacity?: number);
+    setup(size: number, step: number, opacity: number): this;
     setVisible(visible: boolean): this;
   }
 
